@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MMA Career Manager V16</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080b10;color:#edf2f6;font:14px "Segoe UI",Arial,sans-serif}.app{max-width:1280px;margin:auto;min-height:100vh;background:#0e1319}
+.top{height:68px;background:#090c11;border-bottom:1px solid #303a46;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:10}.brand{font-weight:900;letter-spacing:2px;font-size:18px}.brand span{color:#d7aa43}.hud{display:flex;gap:22px}.hud div{font-size:9px;color:#778391;text-transform:uppercase}.hud b{display:block;color:#fff;font-size:14px;margin-top:3px}
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 68px)}.side{background:#0b1016;border-right:1px solid #303a46;padding:10px}.nav{padding:11px;border:1px solid transparent;border-radius:5px;color:#aab4bf;margin:3px 0;cursor:pointer}.nav:hover,.nav.active{background:#1d2630;border-color:#3a4653;color:#fff}.fight-nav-live{background:#5b252b!important;border-color:#c64e58!important;color:#fff!important;animation:pulseFight 1.3s infinite}.fight-nav-live small{color:#ffd7d9}@keyframes pulseFight{50%{box-shadow:0 0 0 3px rgba(198,78,88,.12)}}.nav small{display:block;color:#697583;margin-top:3px}.main{padding:18px}.screen{display:none}.screen.active{display:block}
+.hero{background:linear-gradient(135deg,#232d38,#11171e);border:1px solid #3a4652;border-radius:8px;padding:24px;margin-bottom:13px}.hero h1{margin:0 0 8px;font-size:29px}.hero p{color:#9ca8b3;margin:5px 0}.panel{background:#141a21;border:1px solid #303a46;border-radius:7px;overflow:hidden;margin-bottom:13px}.head{padding:11px 14px;background:#1b232d;border-bottom:1px solid #303a46;display:flex;justify-content:space-between}.head span{color:#778390;font-size:10px}.body{padding:14px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.card{background:#171e26;border:1px solid #303a46;border-radius:5px;padding:12px}.card small{color:#788593;font-size:9px;text-transform:uppercase;display:block}.card b{display:block;font-size:19px;margin-top:4px}.bar{height:7px;background:#29333d;border-radius:5px;overflow:hidden;margin-top:7px}.bar i{display:block;height:100%;background:#4c8fc9}
+.actions{display:flex;flex-wrap:wrap;gap:7px}.btn{background:#28313b;color:#fff;border:1px solid #46525e;border-radius:4px;padding:9px 13px;cursor:pointer}.btn:hover{background:#36414d}.btn.gold{background:#72571d;border-color:#a27d2c}.btn.green{background:#245637}.btn.red{background:#66252b}.btn:disabled{opacity:.45;cursor:not-allowed}.big{padding:13px 20px;font-weight:700}
+.choicegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.choice{background:#181f27;border:1px solid #35414d;color:#fff;border-radius:5px;padding:13px;text-align:left;cursor:pointer}.choice:hover,.choice.selected{background:#29251c;border-color:#d7aa43}.choice b{display:block;margin-bottom:5px}.choice small{color:#8b97a3;line-height:1.45}.input{width:100%;padding:11px;background:#0a0f14;border:1px solid #404c58;color:#fff;border-radius:4px}
+.alert{padding:12px;background:#29261c;border-left:4px solid #d7aa43;margin:10px 0}.alert.green{background:#19291f;border-color:#4ca96d}.alert.red{background:#311b1f;border-color:#ce4e59}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.day{min-height:65px;background:#11171e;border:1px solid #29343e;padding:7px;font-size:10px;border-radius:4px}.day b{display:block;font-size:12px}.day.today{border-color:#d7aa43}.day.busy{background:#17291f;border-color:#315c43}.log{max-height:400px;overflow:auto}.item{padding:9px;border-bottom:1px solid #2a343e;font-size:12px}.item b{color:#deb65a}.item em{float:right;color:#697583;font-style:normal}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:8px;border-bottom:1px solid #2d3741}th{font-size:9px;color:#778491}.fight{background:#090d12;border:1px solid #3b4652;border-radius:7px;padding:20px;text-align:center}.fighters{display:grid;grid-template-columns:1fr 70px 1fr;align-items:center}.fighter{font-size:22px;font-weight:800}.vs{font-weight:900;color:#d7aa43;font-size:20px}.meter{height:20px;background:#71343a;margin:17px 0;overflow:hidden}.meter i{display:block;height:100%;background:#4c8fc9}.fightbuttons{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.fightbuttons button{padding:13px;background:#242d36;color:#fff;border:1px solid #414c58;border-radius:4px;cursor:pointer;min-height:68px}.fightbuttons button:hover{background:#35414d;border-color:#d7aa43}.fightbuttons small{color:#9aa6b2}.fight .alert.red{box-shadow:0 0 18px rgba(190,55,65,.12)}.start{max-width:850px;margin:20px auto}.toast{position:fixed;right:20px;bottom:20px;background:#202a34;border:1px solid #56626e;padding:12px 16px;border-radius:5px;display:none;z-index:50}.toast.show{display:block}.fight-result-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}.fight-result-box{width:min(760px,100%);text-align:center;background:#151b22;border:2px solid #d7aa43;border-radius:10px;padding:42px;box-shadow:0 0 100px rgba(215,170,67,.2)}.fight-result-kicker{font-size:12px;letter-spacing:4px;color:#9da8b2}.fight-result-title{font-size:58px;font-weight:1000;margin:12px 0;text-transform:uppercase}.fight-result-method{font-size:34px;font-weight:900;color:#d7aa43;margin-bottom:10px}.fight-result-sub{font-size:17px;color:#c2cbd2;margin-bottom:25px}.event-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}.event-modal-box{width:min(560px,100%);background:#151b22;border:1px solid #c64e58;border-radius:8px;box-shadow:0 20px 80px rgba(0,0,0,.6);padding:22px}.event-modal-top{font-size:10px;color:#f07b83;font-weight:800;letter-spacing:1px}.event-modal-box h2{margin:12px 0 7px}.event-modal-box p{color:#b9c2ca;line-height:1.6}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.side{display:flex;overflow:auto}.nav{min-width:105px}.grid,.grid4{grid-template-columns:1fr 1fr}.fightbuttons{grid-template-columns:1fr 1fr}.fighters{grid-template-columns:1fr}.vs{display:none}}@media(max-width:500px){.grid,.grid4,.choicegrid{grid-template-columns:1fr}.hud{gap:8px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="brand">MMA <span>CAREER</span> MANAGER</div><div class="hud">
+<div>Wiek<b id="hAge">—</b></div><div>Rekord<b id="hRecord">—</b></div><div>Kasa<b id="hCash">—</b></div><div>Media<b id="hMedia">—</b></div></div></header>
+<div class="layout"><aside class="side" id="side"></aside><main class="main">
+<div id="home" class="screen"></div><div id="training" class="screen"></div><div id="calendar" class="screen"></div><div id="fight" class="screen"></div><div id="career" class="screen"></div><div id="team" class="screen"></div><div id="finance" class="screen"></div><div id="events" class="screen"></div>
+</main></div></div><div id="toast" class="toast"></div>
+
+<script>
+"use strict";
+
+/* V9 is deliberately built without inline onclick handlers or an IIFE.
+   All buttons are attached through addEventListener after each render. */
+
+const BASES=["BJJ","Boks","Zapasy","Kickboxing","Muay Thai","Karate","Taekwondo","Zapasy-Dagestan","Judo"];
+const LEVELS={
+ wonderkid:["WONDERKID","Szybki rozwój i wysoki potencjał."],
+ bijok:["LOKALNY BIJOK","Charakter, twardość i normalny rozwój."],
+ gum:["CZŁOWIEK GUMA DO BJJ","Bonus do BJJ i grapplingu."],
+ iron:["ŻELAZNY AMATOR","Wolniej rośnie, ale dobrze znosi presję."]
+};
+const FINANCES=[
+ ["rich","Bogata rodzina",12000,.45],
+ ["gym","Pomoc na sali w zamian za trening",700,.20],
+ ["normal","Normalny start",3000,0],
+ ["grind","Sam na siebie",500,.05]
+];
+const CLUBS=["Arrachion Olsztyn","Czerwony Smok","Ankos MMA","WCA Fight Team","Berserkers Team","Mighty Bulls Gdynia","Octopus Łódź"];
+const OPP=["Kacper „Kosa” Wrona","Michał „Beton” Lis","Patryk „Młody Wilk” Gajda","Igor „Kret” Mazur","Bartosz „Bizon” Kurek","Szymon „Rambo” Król"];
+const ORGS=[
+ ["ALMMA",16,0,300],["Lokalna gala",17,35,800],["Babilon MMA",18,52,2500],
+ ["FEN",18,58,4500],["KSW",18,68,12000],["OKTAGON MMA",18,70,15000],
+ ["PFL",18,78,35000],["UFC",18,88,70000]
+];
+const COST={striking:110,wrestling:120,bjj:120,conditioning:80,strength:70,tactics:90};
+const SKILLS=["striking","wrestling","bjj","conditioning","strength","tactics","mental","recovery"];
+
+let G=null;
+let SET={name:"Kamil",level:null,base:null,finance:null};
+
+const $=id=>document.getElementById(id);
+const money=n=>Math.round(n).toLocaleString("pl-PL")+" PLN";
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const today=()=>new Date(G.date+"T12:00:00");
+const dateText=()=>today().toLocaleDateString("pl-PL");
+const avg=()=>Math.round(SKILLS.reduce((s,k)=>s+(Number(G.stats[k])||0),0)/SKILLS.length);
+const weekend=()=>[0,6].includes(today().getDay());
+
+function toast(t){
+ const x=$("toast");x.textContent=t;x.className="toast show";
+ clearTimeout(window.__toast);window.__toast=setTimeout(()=>x.className="toast",2200);
+}
+function save(){try{localStorage.setItem("mma_v16_save",JSON.stringify(G));}catch(e){}}
+function load(){try{return JSON.parse(localStorage.getItem("mma_v16_save")||"null");}catch(e){return null;}}
+function log(type,text){G.log.unshift({type,text,date:dateText()});G.log=G.log.slice(0,160);}
+function sponsorOK(){return G.rep>=60&&avg()>=60;}
+function sponsorLevel(){return Math.max(1,Math.floor((G.rep+G.media+avg())/55)-3);}
+
+function normalizeState(){
+ if(!G)return;
+ G.name=G.name||"Kamil";G.age=Number(G.age)||16;
+ G.date=/^\d{4}-\d{2}-\d{2}$/.test(G.date||"")?G.date:"2026-01-01";
+ G.cash=Number(G.cash)||0;G.rep=Number(G.rep)||10;G.media=Number(G.media)||5;
+ G.form=Number(G.form)||100;G.fatigue=Number(G.fatigue)||10;G.recovery=Number(G.recovery)||75;
+ G.daily=Number(G.daily)||0;G.work=!!G.work;G.daysPlayed=Number(G.daysPlayed)||0;
+ G.stats=G.stats||{};SKILLS.forEach(k=>G.stats[k]=Number(G.stats[k])||30);
+ G.record=G.record||{w:0,l:0};G.log=Array.isArray(G.log)?G.log:[];G.events=Array.isArray(G.events)?G.events:[];
+ G.queue=Array.isArray(G.queue)?G.queue:[];G.fights=Array.isArray(G.fights)?G.fights:[];G.fight=null;
+ G.manager=G.manager||"brak";G.club=G.club||rnd(CLUBS);G.pendingFight=G.pendingFight||null;G.scheduledFight=G.scheduledFight||null;G.fightCamp=G.fightCamp||null;G.pauseEvent=G.pauseEvent||null;G.lastEventDay=Number(G.lastEventDay)||0;if(G.fight){G.fight.time=Number(G.fight.time)||0;G.fight.round=Number(G.fight.round)||1;G.fight.prompt=G.fight.prompt||null;G.fight.log=Array.isArray(G.fight.log)?G.fight.log:[];G.fight.roundYou=Number(G.fight.roundYou)||0;G.fight.roundOpp=Number(G.fight.roundOpp)||0;G.fight.scores=Array.isArray(G.fight.scores)?G.fight.scores:[];G.fight.totalYou=Number(G.fight.totalYou)||0;G.fight.totalOpp=Number(G.fight.totalOpp)||0;G.fight.commentary=Array.isArray(G.fight.commentary)?G.fight.commentary:[];G.fight.started=!!G.fight.started;}
+}
+
+
+function weekday(){
+ const d=today().getDay();
+ return d>=1 && d<=5;
+}
+function autoTrainingSession(skill){
+ const f=FINANCES.find(x=>x[0]===G.finance);
+ const cost=Math.round(COST[skill]*(1-f[3]));
+ if(G.cash<cost) return false;
+ G.cash-=cost;
+ let mult=G.level==="wonderkid"?1.25:G.level==="iron"?.9:1;
+ if(G.age>=35) mult*=Math.max(.72,1-(G.age-34)*.04);
+ const gain=(.45+Math.random()*1.05)*mult;
+ G.stats[skill]=clamp(G.stats[skill]+gain,0,100);
+ G.fatigue=clamp(G.fatigue+18+Math.random()*7,0,100);
+ G.recovery=clamp(G.recovery-7,0,100);
+ G.form=clamp(G.form-.5+Math.random()*1.5,0,100);
+ G.queue.push({date:G.date,what:"Auto: "+skill});
+ return {cost:cost,gain:gain};
+}
+function chooseAutoSkill(){
+ if(G.fightCamp && G.fightCamp.style==="grappling") return rnd(["wrestling","bjj","conditioning","tactics"]);
+ if(G.fightCamp) return rnd(["striking","conditioning","tactics","strength"]);
+ const map={
+  "BJJ":["bjj","wrestling","conditioning"],"Boks":["striking","conditioning","tactics"],
+  "Zapasy":["wrestling","conditioning","strength"],"Kickboxing":["striking","conditioning","tactics"],
+  "Muay Thai":["striking","conditioning","strength"],"Karate":["striking","tactics","conditioning"],
+  "Taekwondo":["striking","conditioning","tactics"],"Zapasy-Dagestan":["wrestling","conditioning","tactics"],
+  "Judo":["wrestling","bjj","conditioning"]
+ };
+ return rnd(map[G.base]||["striking","conditioning","tactics"]);
+}
+function processDailyTraining(){
+ if(!weekday()) return;
+ for(let i=0;i<2;i++){
+  const r=autoTrainingSession(chooseAutoSkill());
+  if(r) log("PLAN TRENINGOWY","Sesja "+(i+1)+"/2 · +"+r.gain.toFixed(1)+" · "+money(r.cost));
+  else {log("FINANSE","Brak środków na sesję "+(i+1)+".");break;}
+ }
+ G.daily=2;
+ if(G.fatigue>=82) G.form=clamp(G.form-2,0,100);
+ if(Math.random()<.025 && !G.injury){
+  G.injury=1+Math.floor(Math.random()*2);
+  log("KONTUZJA","Drobny uraz po dużym obciążeniu · "+G.injury+" tyg.");
+ }
+}
+function careerTier(){
+ const a=avg();
+ if(G.age>=18 && a>=88)return 7;
+ if(G.age>=18 && a>=78)return 6;
+ if(G.age>=18 && a>=68)return 5;
+ if(G.age>=18 && a>=58)return 4;
+ if(G.age>=17 && a>=50)return 3;
+ if(G.age>=16 && a>=35)return 2;
+ return 1;
+}
+function fightOfferChance(){
+ const t=careerTier();
+ return t<=2?.18:t<=4?.15:t<=5?.12:.09;
+}
+function makeFightOffer(){
+ if(G.pendingFight||G.fight||G.scheduledFight||G.fightCamp)return;
+ const offers=[
+  {name:"HYBRID MMA — Local Fight Night",min:0,entry:500,pay:1000,days:10,style:"mixed"},
+  {name:"Amatorska gala regionalna",min:35,entry:600,pay:1400,days:12,style:"mixed"},
+  {name:"Babilon MMA — development bout",min:52,entry:0,pay:2500,days:18,style:"mixed"},
+  {name:"FEN — undercard opportunity",min:58,entry:0,pay:4500,days:21,style:"mixed"},
+  {name:"KSW — short notice opportunity",min:68,entry:0,pay:12000,days:24,style:"mixed"},
+  {name:"OKTAGON MMA — international bout",min:70,entry:0,pay:15000,days:28,style:"mixed"},
+  {name:"PFL — international opportunity",min:78,entry:0,pay:35000,days:32,style:"mixed"},
+  {name:"UFC — developmental opportunity",min:88,entry:0,pay:70000,days:38,style:"mixed"}
+ ];
+ const available=offers.filter(o=>G.age>=16&&avg()>=o.min);
+ if(!available.length)return;
+ const o=rnd(available.filter(x=>x.min<=35)||available);
+ G.pendingFight={name:o.name,entry:o.entry,pay:o.pay,days:o.days,style:o.style,org:o.name.split(" — ")[0],op:rnd(OPP)};
+ log("OFERTA WALKI",o.name+" · przeciwnik: "+G.pendingFight.op);
+}
+function clubSupportForFight(){
+ // Club support is deliberately strongest for lower-level fighters.
+ const tier=repTier();
+ const base=G.cash>=500 ? 0 : (tier<=1?.85:tier<=2?.65:tier<=3?.40:.18);
+ if(G.club==="Arrachion Olsztyn"||G.club==="Ankos MMA"||G.club==="WCA Fight Team") return Math.min(.95,base+.08);
+ return base;
+}
+function resolveFightOffer(action){
+ if(!G.pendingFight)return;
+ const f=G.pendingFight;
+ if(action==="accept"){
+  let covered=0;
+  if(G.cash>=f.entry){
+   G.cash-=f.entry;
+  }else{
+   const support=clubSupportForFight();
+   if(Math.random()<support){
+    covered=f.entry-G.cash;
+    G.cash=0;
+    log("KLUB","Klub pokrywa "+money(covered)+" wpisowego. Trener chce, żebyś walczył.");
+   }else{
+    toast("Brakuje pieniędzy na wpisowe, a klub tym razem nie może pomóc.");
+    return;
+   }
+  }
+  G.fightCamp={style:f.style,daysLeft:f.days,total:f.days};
+  G.scheduledFight={name:f.name,org:f.org,op:f.op,pay:f.pay,entry:f.entry,clubCovered:covered};
+  log("WALKA ZAPISANA",f.name+" · "+f.op+(covered? " · klub pokrył wpisowe":""));
+ }else{
+  log("ODRZUCONA WALKA","Odrzucono: "+f.name);
+ }
+ G.pendingFight=null;save();render();
+}
+function autoFightCampDay(){
+ if(!G.fightCamp)return false;
+ G.fightCamp.daysLeft--;
+ G.form=clamp(G.form+.6,0,100);
+ if(G.fightCamp.daysLeft<=0){
+  const f=G.scheduledFight;
+  G.fightCamp=null;G.scheduledFight=null;
+  G.fight={org:f.org,op:f.op,opp:Math.max(25,avg()-5+Math.random()*20),round:1,time:0,m:50,st:100,ost:100,pay:f.pay,log:[],roundProgress:0,prompt:null,lastAction:"Start",lastSuccess:null,lastCounter:null,lastKO:null,roundYou:0,roundOpp:0,scores:[],totalYou:0,totalOpp:0,commentary:[],started:false};
+  log("FIGHT DAY","Dzisiaj walczysz: "+f.name+" · "+f.op);
+  startFightClock();
+  return true;
+ }
+ return false;
+}
+function clearPauseEvent(){
+ if(G.pauseEvent){log("REAKCJA","Zareagowano na: "+G.pauseEvent.title);G.pauseEvent=null;save();render();}
+}
+function declinePauseEvent(){
+ if(G.pauseEvent){G.media=clamp(G.media-1,0,100);log("REAKCJA","Zignorowano: "+G.pauseEvent.title);G.pauseEvent=null;save();render();}
+}
+
+function advanceDay(reason){
+ if(!G)return;
+ const d=today();
+ d.setDate(d.getDate()+1);
+ G.date=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+ G.daily=0;G.work=false;G.daysPlayed++;
+ G.fatigue=clamp(G.fatigue-14,0,100);
+ G.recovery=clamp(G.recovery+9,0,100);
+ if(G.injury){
+  G.injury--;
+  if(G.injury<=0){G.injury=0;log("POWRÓT","Kontuzja zaleczona.");}
+ }
+ const age=16+Math.floor((d-new Date("2026-01-01T12:00:00"))/(365.2425*86400000));
+ if(age>G.age&&age>=35)log("WIEK","Od 35. roku życia naturalnie spada efektywność.");
+ G.age=Math.max(16,age);
+ processDailyTraining();
+ if(autoFightCampDay()){save();render();return;}
+ if(!G.pendingFight&&!G.pauseEvent&&Math.random()<fightOfferChance()){
+  makeFightOffer();
+  if(G.pendingFight){log("PAUZA","Oferta walki wymaga decyzji.");save();render();return;}
+ }
+ if(!G.pendingFight&&!G.pauseEvent && Math.random()<0.10 && reputationEvent()){
+  save();render();return;
+ }
+ if(reason)log("KALENDARZ",reason);
+ save();render();
+}
+function fastForward(){
+ if(G.pendingFight||G.pauseEvent||G.fight){toast("Najpierw zareaguj na aktywne wydarzenie.");return;}
+ for(let i=0;i<30;i++){
+  advanceDay("Szybkie przewijanie.");
+  if(G.pendingFight||G.pauseEvent||G.fight)break;
+ }
+}
+function nav(){
+ const items=[
+ ["home","🏠 Kariera","centrum"],["training","🥊 Trening","rozwój"],["calendar","📅 Kalendarz","plan"],
+ ["fight","🩸 Walka","fight night"],["career","📈 Kariera","organizacje"],
+ ["team","👥 Team","klub"],["finance","💰 Finanse","manager"],["events","📟 Eventy","media"]
+ ];
+ $("side").innerHTML=items.map(x=>`<div class="nav ${x[0]==="fight"&&G&&G.fight?"fight-nav-live":""}" data-screen="${x[0]}">${x[1]}<small>${x[2]}${x[0]==="fight"&&G&&G.fight?" · LIVE":""}</small></div>`).join("");
+ $("side").querySelectorAll(".nav").forEach(n=>n.addEventListener("click",()=>show(n.dataset.screen)));
+}
+function show(id){
+ document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+ $(id).classList.add("active");
+ $("side").querySelectorAll(".nav").forEach(x=>x.classList.toggle("active",x.dataset.screen===id));
+ render();
+}
+
+function startScreen(){
+ document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+ $("home").classList.add("active");
+ $("home").innerHTML=`
+ <div class="start">
+  <div class="hero"><h1>MMA — Career Manager</h1><p>Kariera zaczyna się w wieku 16 lat. Zarządzaj treningiem, pieniędzmi, reputacją i drogą do UFC.</p></div>
+  <div class="panel"><div class="head"><b>01 · ZAWODNIK</b><span>START 16 LAT</span></div><div class="body"><input id="startName" class="input" maxlength="24" value="${SET.name}"></div></div>
+  <div class="panel"><div class="head"><b>02 · POZIOM</b></div><div class="body"><div id="levels" class="choicegrid"></div></div></div>
+  <div class="panel"><div class="head"><b>03 · BAZA</b></div><div class="body"><div id="bases" class="choicegrid"></div></div></div>
+  <div class="panel"><div class="head"><b>04 · FINANSE</b></div><div class="body"><div id="finances" class="choicegrid"></div></div></div>
+  <div class="actions"><button id="startCareer" class="btn gold big">🥊 ROZPOCZNIJ KARIERĘ</button><button id="loadGame" class="btn big">WCZYTAJ ZAPIS V10</button></div>
+ </div>`;
+ $("startName").addEventListener("input",e=>SET.name=e.target.value);
+ Object.entries(LEVELS).forEach(([k,v])=>{
+  const b=document.createElement("button");b.className="choice"+(SET.level===k?" selected":"");
+  b.innerHTML=`<b>${v[0]}</b><small>${v[1]}</small>`;b.addEventListener("click",()=>{SET.level=k;startScreen()});$("levels").appendChild(b);
+ });
+ BASES.forEach(k=>{
+  const b=document.createElement("button");b.className="choice"+(SET.base===k?" selected":"");
+  b.innerHTML=`<b>${k}</b><small>Specjalizacja startowa zawodnika.</small>`;b.addEventListener("click",()=>{SET.base=k;startScreen()});$("bases").appendChild(b);
+ });
+ FINANCES.forEach(f=>{
+  const b=document.createElement("button");b.className="choice"+(SET.finance===f[0]?" selected":"");
+  b.innerHTML=`<b>${f[1]}</b><small>Kapitał: ${money(f[2])} · zniżka treningów ${f[3]*100}%</small>`;
+  b.addEventListener("click",()=>{SET.finance=f[0];startScreen()});$("finances").appendChild(b);
+ });
+ $("startCareer").addEventListener("click",startCareer);
+ $("loadGame").addEventListener("click",()=>{
+  G=load();if(!G){toast("Brak zapisu V9.");return}normalizeState();nav();show("home");
+ });
+}
+function startCareer(){
+ SET.name=(SET.name||"Kamil").trim()||"Kamil";
+ if(!SET.level||!SET.base||!SET.finance){toast("Wybierz poziom, bazę i finanse.");return}
+ const f=FINANCES.find(x=>x[0]===SET.finance);
+ G={name:SET.name,age:16,date:"2026-01-01",level:SET.level,base:SET.base,finance:SET.finance,club:rnd(CLUBS),
+ cash:f[2],rep:10,media:5,form:100,fatigue:10,recovery:75,daily:0,work:false,daysPlayed:0,
+ stats:{striking:32,wrestling:32,bjj:32,conditioning:32,strength:32,tactics:32,mental:35,recovery:40},
+ record:{w:0,l:0},manager:"brak",log:[],events:[],queue:[],fights:[],fight:null};
+ if(SET.base==="BJJ")G.stats.bjj+=10;
+ if(["Boks","Kickboxing","Muay Thai"].includes(SET.base))G.stats.striking+=10;
+ if(["Zapasy","Judo","Zapasy-Dagestan"].includes(SET.base))G.stats.wrestling+=10;
+ if(["Karate","Taekwondo"].includes(SET.base))G.stats.striking+=8;
+ if(SET.base==="Muay Thai"){G.stats.conditioning+=5;G.stats.mental+=2}
+ if(SET.base==="Zapasy-Dagestan"){G.stats.tactics+=5;G.stats.conditioning+=5}
+ log("START",`Kariera rozpoczęta · 16 lat · ${SET.base} · ${G.club}.`);
+ save();nav();show("home");
+}
+
+function train(skill){
+ if(G.injury){toast("Kontuzja blokuje trening.");return}
+ if(G.daily>=2){toast("Limit 2 treningów dzisiaj.");return}
+ if(G.fatigue>=90){toast("Jesteś zbyt zmęczony.");return}
+ const f=FINANCES.find(x=>x[0]===G.finance),cost=Math.round(COST[skill]*(1-f[3]));
+ if(G.cash<cost){toast("Brakuje pieniędzy.");return}
+ G.cash-=cost;G.daily++;
+ let mult=G.level==="wonderkid"?1.25:G.level==="iron"?.9:1;
+ if(G.age>=35)mult*=Math.max(.72,1-(G.age-34)*.04);
+ const gain=(.55+Math.random()*1.1)*mult;
+ G.stats[skill]=clamp(G.stats[skill]+gain,0,100);G.fatigue=clamp(G.fatigue+24+Math.random()*8,0,100);G.recovery=clamp(G.recovery-8,0,100);
+ G.queue.push({date:G.date,what:"Trening: "+skill});
+ log("TRENING",`${skill} +${gain.toFixed(1)} · ${money(cost)}`);
+ if(Math.random()<.035){G.injury=1+Math.floor(Math.random()*3);log("KONTUZJA","Uraz · "+G.injury+" tygodnie");}
+ if(G.daily>=2)advanceDay("Dwa treningi wykonane — następny dzień.");
+ save();render();
+}
+function nextDay(){if(G.pendingFight||G.pauseEvent||G.fight){toast("Najpierw zareaguj na aktywne wydarzenie.");return;}advanceDay("Dzień przewinięty.");}
+function rest(){advanceDay("Regeneracja.");G.form=clamp(G.form+2,0,100);G.fatigue=clamp(G.fatigue-15,0,100);G.recovery=clamp(G.recovery+12,0,100);save();render();}
+
+function gate(){
+ if(!weekend()){toast("Bramka jest dostępna tylko w weekend.");return}
+ if(G.work){toast("Dzisiejsza zmiana już wykonana.");return}
+ if(G.rep>=55||avg()>=55){toast("Przy tej reputacji czas zarabiać sportem.");return}
+ const e=180+Math.floor(Math.random()*171);G.cash+=e;G.work=true;log("BRAMKA","Weekendowa zmiana +"+money(e));advanceDay("Po nocnej zmianie następny dzień.");save();render();
+}
+function extort(){
+ if(G.rep>=45||G.media>=45){toast("Ta forma dorabiania znika wraz z medialnością.");return}
+ const week=Math.floor((today()-new Date(today().getFullYear(),0,1))/604800000);
+ if(G.week!==week){G.week=week;G.ext=0} G.ext=G.ext||0;
+ if(G.ext>=2){toast("Maksymalnie 2 humorystyczne „wymuszenia” w tygodniu.");return}
+ G.ext++;const e=Math.random()<.72?50+Math.floor(Math.random()*151):0;G.cash+=e;
+ log("WYMUSZENIE 😂",e?`Kolega oddał za pizzę +${money(e)}`:"Kolega odmówił.");
+ advanceDay("Koniec dnia.");save();render();
+}
+function sponsor(){
+ if(!sponsorOK()){toast("Potrzebujesz reputacji 60 i średniej 60.");return}
+ G.manager="Manager";const e=(400+Math.floor(Math.random()*600))*sponsorLevel();G.cash+=e;G.rep=clamp(G.rep+2,0,100);G.media=clamp(G.media+2,0,100);
+ log("SPONSOR","Manager przyniósł ofertę +"+money(e));save();render();
+}
+function meal(){
+ if(!sponsorOK()){toast("Dieta odblokuje się przy reputacji 60 i średniej 60.");return}
+ const cost=Math.max(60,170-sponsorLevel()*12);if(G.cash<cost){toast("Brakuje pieniędzy.");return}
+ G.cash-=cost;G.recovery=clamp(G.recovery+8,0,100);G.form=clamp(G.form+3,0,100);log("DIETA","Dieta pudełkowa · koszt "+money(cost));save();render();
+}
+
+function repTier(){
+ const r=G.rep||0;
+ if(r<20)return 0;
+ if(r<35)return 1;
+ if(r<50)return 2;
+ if(r<65)return 3;
+ if(r<80)return 4;
+ return 5;
+}
+function eventCooldownDays(){
+ // Events become more likely as reputation grows, but remain occasional.
+ return [28,22,17,13,10,8][repTier()];
+}
+function canRandomEvent(){
+ const last=G.lastEventDay||0;
+ return (G.daysPlayed-last)>=eventCooldownDays();
+}
+function reputationEvent(){
+ if(!canRandomEvent())return false;
+ const tier=repTier();
+ const pools=[
+  [
+   ["KLUB","Trener daje ci dodatkową sesję bez opłat.",2,1],
+   ["LOKALNA GALA","Organizator pyta, czy jesteś gotowy na debiut.",3,2]
+  ],
+  [
+   ["INSTAGRAM","Lokalny profil wrzuca fragment twojego treningu.",4,3],
+   ["SPARING","Inny klub proponuje wspólny sparing.",3,2]
+  ],
+  [
+   ["WYWIAD","Lokalny portal chce krótki wywiad po treningu.",5,4],
+   ["VIRAL","Fragment sparingu zaczyna krążyć po sieci.",7,5]
+  ],
+  [
+   ["MANAGER","Manager pyta o dostępność na większą galę.",6,5],
+   ["SPONSOR","Mała lokalna firma chce cię wesprzeć.",8,5]
+  ],
+  [
+   ["MEDIA","Zaproszenie do podcastu MMA.",8,6],
+   ["SPONSOR","Marka sportowa proponuje pierwszą współpracę.",10,7]
+  ],
+  [
+   ["DUŻA GALA","Twoje nazwisko pojawia się na radarze większej organizacji.",10,8],
+   ["MEDIA","Dostajesz zaproszenie do dużego programu MMA.",12,9]
+  ]
+ ];
+ const pool=pools[tier];
+ const ev=rnd(pool);
+ G.lastEventDay=G.daysPlayed;
+ G.events.unshift(ev);
+ G.media=clamp(G.media+ev[2],0,100);
+ G.rep=clamp(G.rep+ev[3],0,100);
+ G.pauseEvent={title:ev[0],text:ev[1]};
+ log(ev[0],ev[1]);
+ return true;
+}
+function randomEvent(){
+ if(!G)return;
+ if(!canRandomEvent()){
+  toast("Brak nowego eventu — reputacja nie rośnie od samego klikania.");
+  return;
+ }
+ if(reputationEvent()){save();render();}
+}
+function contract(org){
+ if(G.fight||G.pendingFight||G.scheduledFight||G.fightCamp){toast("Możesz mieć tylko jedną aktywną walkę.");return;}
+ const o=ORGS.find(x=>x[0]===org);if(!o)return;
+ if(G.age<o[1]){toast("Jeszcze za młody.");return}
+ if(avg()<o[2]){toast("Za niski poziom sportowy.");return}
+ if(G.fight){toast("Masz już walkę.");return}
+ G.fight={org,op:rnd(OPP),opp:o[2]+Math.random()*24,round:1,time:0,m:50,st:100,ost:100,pay:o[3],log:[],roundProgress:0,prompt:null,lastAction:"Start",lastSuccess:null,lastCounter:null,lastKO:null,roundYou:0,roundOpp:0,scores:[],totalYou:0,totalOpp:0,commentary:[]};
+ log("WALKA",`${org} · ${G.name} vs ${G.fight.op}`);save();show("fight");
+}
+
+function scoreRound(f){
+ const a=f.roundYou||0, b=f.roundOpp||0;
+ let me=10, opp=9;
+ const diff=a-b;
+ if(diff>=18){me=10;opp=7;}
+ else if(diff>=9){me=10;opp=8;}
+ else if(diff<=-18){me=7;opp=10;}
+ else if(diff<=-9){me=8;opp=10;}
+ else if(Math.abs(diff)<=2){me=10;opp=10;}
+ else if(diff<0){me=9;opp=10;}
+ f.scores=f.scores||[];
+ f.scores.push({round:f.round,you:me,opp:opp,performance:a,oppPerformance:b});
+ f.totalYou=(f.totalYou||0)+me;
+ f.totalOpp=(f.totalOpp||0)+opp;
+ f.roundYou=0;f.roundOpp=0;
+ return {you:me,opp:opp};
+}
+function currentRoundPerformance(f){
+ return {you:Math.round(f.roundYou||0),opp:Math.round(f.roundOpp||0)};
+}
+function scoreLabel(s){
+ if(s.you===10&&s.opp===10)return "10-10 — bardzo wyrównana runda";
+ if(s.you===10&&s.opp===9)return "10-9 — runda wygrana";
+ if(s.you===10&&s.opp===8)return "10-8 — duża przewaga";
+ if(s.you===10&&s.opp===7)return "10-7 — dominacja";
+ if(s.you===9&&s.opp===10)return "9-10 — runda przegrana";
+ if(s.you===8&&s.opp===10)return "8-10 — duża przewaga rywala";
+ if(s.you===7&&s.opp===10)return "7-10 — dominacja rywala";
+ return s.you+"-"+s.opp;
+}
+
+function fightNarrative(type, outcome, landed, counter){
+ const me=G.name, op=G.fight.op;
+ const openers={
+  reckless:[`${me} rusza bardzo agresywnie i od razu szuka mocnego ciosu.`,`${me} skraca dystans i próbuje narzucić chaos.`,`${me} nie chce kalkulować — idzie do przodu.`],
+  pressure:[`${me} podkręca tempo i spycha rywala pod siatkę.`,`${me} zaczyna pracować seriami i nie daje ${op} odpocząć.`,`${me} przejmuje środek oktagonu.`],
+  technical:[`${me} spokojnie czyta ruchy rywala.`,`${me} pracuje na dystansie i szuka właściwego momentu.`,`${me} nie rzuca ciosów na ślepo — wszystko jest przygotowane.`],
+  safe:[`${me} zachowuje spokój i kontroluje dystans.`,`${me} nie daje się wciągnąć w wymianę.`,`${me} realizuje plan narożnika i nie podejmuje niepotrzebnego ryzyka.`]
+ };
+ let text=rnd(openers[type]||openers.pressure);
+ if(landed){
+  const hits=["trafienie w punkt.","seria dochodzi do celu.","rywal odczuwa tę akcję.","ciosy wyraźnie zaznaczają przewagę."];
+  text+=" "+rnd(hits);
+ }else{
+  text+=" "+rnd(["Rywal uchodzi z linii ciosu.","Akcja nie dochodzi czysto.",""+op+" dobrze czyta tę próbę."]);
+ }
+ if(counter) text+=" "+op+" natychmiast odpowiada kontrą!";
+ if(outcome==="KO") text+=" 💥 Trafienie kończy walkę!";
+ return text;
+}
+function opponentNarrative(){
+ const op=G.fight.op;
+ return rnd([
+  `${op} próbuje odpowiedzieć i odzyskać środek oktagonu.`,
+  `${op} zaczyna pracować na nogach i szuka swojej okazji.`,
+  `${op} trafia krótką serią i pokazuje, że nadal jest w walce.`,
+  `${op} próbuje sprowadzenia i zmusza ${G.name} do obrony.`,
+  `${op} zachowuje zimną krew i czeka na błąd.`
+ ]);
+}
+function fightAction(type){
+ const f=G.fight;if(!f||!f.prompt)return;
+ f.roundYou=Number(f.roundYou)||0;f.roundOpp=Number(f.roundOpp)||0;
+ const styles={
+  reckless:{name:"RYZYKOWNIE",base:68,ko:1.65,counter:1.55,points:.75,energy:1.25},
+  pressure:{name:"PRESJA",base:58,ko:1.18,counter:1.12,points:1.00,energy:1.08},
+  technical:{name:"TECHNICZNIE",base:54,ko:.82,counter:.78,points:1.35,energy:.88},
+  safe:{name:"SPOKOJNIE",base:48,ko:.55,counter:.55,points:1.55,energy:.68}
+ };
+ const st=styles[type]||styles.pressure;
+ const skill=type==="grapple"?Math.max(G.stats.bjj,G.stats.wrestling):
+   (type==="technical"||type==="safe"?G.stats.tactics:G.stats.striking);
+ const edge=skill-f.opp;
+ const roll=Math.random()*100;
+ const success=roll < clamp(st.base+edge*.38+(G.stats.mental-50)*.18,12,88);
+ const ko=success && Math.random() < clamp(.025+(skill/100)*.07, .01,.12)*st.ko;
+ const counter=Math.random() < clamp(.045+(f.opp/100)*.07, .02,.16)*st.counter;
+
+ f.prompt=null;
+ f.lastAction=st.name;
+ f.lastRoll=Math.round(roll);
+ f.lastSuccess=success;
+ f.lastCounter=counter;
+ f.lastKO=ko;
+ f.commentary=f.commentary||[];
+
+ if(ko){
+  f.m=clamp(f.m+10,0,100);f.ost=0;
+  f.log.unshift("💥 "+st.name+" — LOSOWANIE: "+Math.round(roll)+" → NOKAUT!"); f.commentary.unshift(fightNarrative(type,"KO",true,counter));
+  finish(true,"KO");return;
+ }
+ const subChance=type==="grapple" ? clamp(.035+(Math.max(G.stats.bjj,G.stats.wrestling)/100)*.09,.02,.14) : 0;
+ if(type==="grapple" && success && Math.random()<subChance && f.ost<45){
+  f.log.unshift("🔒 PODDANIE! "+G.name+" zapina technikę i rywal odklepuje.");
+  f.commentary.unshift("🔒 Zapięte poddanie! Rywal nie znajduje wyjścia i odklepuje!");
+  finish(true,"SUB");return;
+ }
+
+ if(success){
+  const points=(2+Math.random()*4)*st.points;
+  f.m=clamp(f.m+points,0,100);
+  f.roundYou+=points*2.2;
+  f.roundOpp+=Math.max(0,1.5-points*.08);
+  f.ost=clamp(f.ost-(2+Math.random()*5),0,100);
+  f.log.unshift("✓ "+st.name+" — "+Math.round(roll)+" → akcja się opłaciła ("+points.toFixed(1)+" pkt)"); f.commentary.unshift(fightNarrative(type,"GOOD",true,counter));
+ }else{
+  f.m=clamp(f.m-(.5+Math.random()*2),0,100);
+  f.roundOpp+=2+Math.random()*2;
+  f.log.unshift("✕ "+st.name+" — "+Math.round(roll)+" → akcja nie wyszła"); f.commentary.unshift(fightNarrative(type,"MISS",false,counter));
+ }
+
+ if(counter){
+  const dmg=(4+Math.random()*8)*st.counter;
+  f.st=clamp(f.st-dmg,0,100);
+  f.m=clamp(f.m-dmg*.35,0,100);
+  f.roundOpp+=dmg*1.8;
+  f.roundYou=Math.max(0,f.roundYou-dmg*.6);
+  f.log.unshift("⚡ KONTRA! Rywal wykorzystał ryzyko · -"+dmg.toFixed(1)+" energii"); f.commentary.unshift(opponentNarrative());
+  if(f.st<8 && Math.random()<.22){finish(false,"KO");return;}
+ }
+
+ f.st=clamp(f.st-(2+Math.random()*4)*st.energy,0,100);
+ f.time=Math.min(300,f.time+Math.floor(15+Math.random()*35));
+
+ // After a decision, resume the accelerated fight clock.
+ f.lastEvent="Akcja zakończona";
+ save();render();
+ startFightClock();
+}
+
+function startFightClock(){
+ clearInterval(window.__fightClock);
+ if(!G||!G.fight||G.fight.prompt)return;
+ window.__fightClock=setInterval(()=>{
+  if(!G||!G.fight){clearInterval(window.__fightClock);return;}
+  const f=G.fight;
+  if(f.prompt){clearInterval(window.__fightClock);return;}
+  // Football Manager style: the clock advances quickly.
+  f.time+=3+Math.floor(Math.random()*5);
+  // Random tactical moment every ~15-35 seconds of fight time.
+  if(f.time>=300){
+   const scored=scoreRound(f);
+   f.log.unshift("🔔 KONIEC RUNDY "+(f.round)+" · "+scoreLabel(scored)); f.commentary.unshift("🔔 Koniec rundy. Narożnik przygotowuje zawodnika do kolejnych pięciu minut.");
+   f.round++;
+   f.time=0;
+   f.st=clamp(f.st+10,0,100);
+   f.ost=clamp(f.ost+5,0,100);
+   if(f.round>3){
+    clearInterval(window.__fightClock);
+    const totalYou=f.totalYou||0,totalOpp=f.totalOpp||0;
+    finish(totalYou>totalOpp,"DEC");
+    return;
+   }
+  }
+  // Chance of an automatic opponent sequence while time runs.
+  if(Math.random()<.055){
+   const dmg=1+Math.random()*4;
+   f.st=clamp(f.st-dmg,0,100);
+   f.roundOpp+=dmg*1.3;
+   f.roundYou=Math.max(0,(f.roundYou||0)-(dmg*.25));
+   f.m=clamp(f.m+(Math.random()-.48)*2,0,100);
+   f.log.unshift("🥊 "+(Math.random()<.5?"Krótka wymiana":"Rywal próbuje przejąć inicjatywę")+" · czas "+formatFightTime(f.time)); f.commentary.unshift(opponentNarrative());
+  }
+  // Decision moment.
+  if(Math.random()<.045){
+   const prompts=[
+    ["🔥","Rywal odsłonił się! Masz okazję ruszyć po nokaut."],
+    ["⚡","Rywal wchodzi agresywnie — możesz skontrować."],
+    ["🎯","Widzisz lukę w obronie. Możesz punktować technicznie."],
+    ["🧠","Trener krzyczy, żeby zwolnić i kontrolować tempo."],
+    ["🤼","Rywal zostawił nogę — jest okazja do zejścia do parteru."]
+   ];
+   const p=rnd(prompts);
+   f.prompt={icon:p[0],text:p[1]};
+   clearInterval(window.__fightClock);
+  }
+  save();renderFightOnly();
+ },250);
+}
+
+function formatFightTime(sec){
+ const m=Math.floor(sec/60),s=sec%60;
+ return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+function renderFightOnly(){
+ if(G&&G.fight) renderFight();
+}
+
+
+function showFightResult(title, method, sub){
+ clearInterval(window.__fightClock);
+ const old=document.getElementById("fightResultOverlay"); if(old)old.remove();
+ const div=document.createElement("div");
+ div.id="fightResultOverlay";div.className="fight-result-overlay";
+ div.innerHTML='<div class="fight-result-box"><div class="fight-result-kicker">FIGHT FINISHED</div><div class="fight-result-title">'+title+'</div><div class="fight-result-method">'+method+'</div><div class="fight-result-sub">'+sub+'</div><button id="resultContinue" class="btn gold big">KONTYNUUJ</button></div>';
+ document.body.appendChild(div);
+ $("resultContinue").onclick=()=>{div.remove();show("home");};
+}
+function startCurrentFight(){
+ if(!G.fight||G.fight.started)return;
+ G.fight.started=true;
+ G.fight.log.unshift("🔔 Sędzia daje znak do rozpoczęcia walki.");
+ G.fight.commentary.unshift("🔔 Gong! Zawodnicy ruszają na siebie.");
+ save();renderFight();startFightClock();
+}
+
+function finish(win,method){
+ clearInterval(window.__fightClock);
+ const f=G.fight;
+ if(win){G.record.w++;G.cash+=f.pay;G.rep=clamp(G.rep+5,0,100);G.media=clamp(G.media+4,0,100);log("ZWYCIĘSTWO",`${method} · +${money(f.pay)}`)}
+ else{G.record.l++;G.rep=clamp(G.rep-3,0,100);G.media=clamp(G.media-2,0,100);log("PORAŻKA",method)}
+ G.fights.push({org:f.org,op:f.op,result:win?"W":"L",method});G.fight=null;save();
+ const methodText=method==="KO"?"💥 NOKAUT":method==="SUB"?"🔒 PODDANIE":method==="TKO"?"🛑 TKO":method==="DEC"?"📋 DECYZJA SĘDZIÓW":method;
+ showFightResult(win?"ZWYCIĘSTWO!":"PORAŻKA",methodText,win?"Walka zakończona przed czasem!":"Walka zakończona przez "+method+".");
+}
+
+function dismissEventModal(){
+ if(G.pauseEvent){G.pauseEvent=null;save();render();}
+}
+function acceptEventModal(){
+ if(G.pauseEvent){
+  log("REAKCJA","Zareagowano na event: "+G.pauseEvent.title);
+  G.pauseEvent=null;save();render();
+ }
+}
+function render(){
+ if(!G){startScreen();return}
+ $("hAge").textContent=G.age;$("hRecord").textContent=G.record.w+"-"+G.record.l;$("hCash").textContent=money(G.cash);$("hMedia").textContent=Math.round(G.media);
+ renderHome();renderTraining();renderCalendar();renderFight();renderCareer();renderTeam();renderFinance();renderEvents();
+ renderGlobalAlert();
+}
+
+function renderGlobalAlert(){
+ let old=document.getElementById("globalEventModal");
+ if(old)old.remove();
+ if(!G.pauseEvent)return;
+ const div=document.createElement("div");
+ div.id="globalEventModal";
+ div.className="event-modal";
+ div.innerHTML=`<div class="event-modal-box">
+  <div class="event-modal-top">⚠️ LOSOWY EVENT · CZAS ZATRZYMANY</div>
+  <h2>${G.pauseEvent.title}</h2>
+  <p>${G.pauseEvent.text}</p>
+  <div class="actions">
+   <button id="modalReact" class="btn gold">ZAREAGUJ</button>
+   <button id="modalDismiss" class="btn">ZAMKNIJ</button>
+  </div>
+ </div>`;
+ document.body.appendChild(div);
+ $("modalReact").onclick=acceptEventModal;
+ $("modalDismiss").onclick=dismissEventModal;
+}
+function renderHome(){
+ const logs=G.log.slice(0,18).map(x=>`<div class="item"><b>${x.type}</b> — ${x.text}<em>${x.date}</em></div>`).join("");
+ $("home").innerHTML=`<div class="hero"><h1>${G.name}</h1><p>${G.age} lat · ${G.base} · ${G.club} · ${dateText()}</p><p>Średnia <b>${avg()}</b> · Forma <b>${Math.round(G.form)}%</b> · Zmęczenie <b>${Math.round(G.fatigue)}%</b> · Reputacja <b>${Math.round(G.rep)}</b> · Media <b>${Math.round(G.media)}</b></p>${G.fightCamp?`<p><b>🥊 OKRES PRZYGOTOWAWCZY:</b> ${G.fightCamp.daysLeft} dni · ${G.scheduledFight.org} · ${G.scheduledFight.op}</p>`:""}</div>
+ <div class="grid4"><div class="card"><small>Rekord</small><b>${G.record.w}-${G.record.l}</b></div><div class="card"><small>Gotówka</small><b>${money(G.cash)}</b></div><div class="card"><small>Trening dziś</small><b>${G.daily}/2</b></div><div class="card"><small>Manager</small><b>${G.manager}</b></div></div>
+ <div class="panel"><div class="head"><b>CENTRUM KARIERY</b><span>${dateText()}</span></div><div class="body"><div class="actions"><button id="goTrain" class="btn">🥊 Trening</button><button id="goFight" class="btn red">🩸 POLE WALKI</button><button id="goNext" class="btn gold">▶ 1 DZIEŃ</button><button id="goFast" class="btn gold">⏩ PRZEWIŃ DO EVENTU</button><button id="goCal" class="btn">📅 Kalendarz</button></div></div></div>
+${G.pendingFight?'<div class="panel"><div class="head"><b>⚠️ OFERTA WALKI — CZAS ZATRZYMANY</b></div><div class="body"><div class="alert red"><b>'+G.pendingFight.name+'</b><br>Przeciwnik: '+G.pendingFight.op+' · Wpisowe: '+money(G.pendingFight.entry)+' · Wygrana: '+money(G.pendingFight.pay)+' · Przygotowanie: '+G.pendingFight.days+' dni</div><div class="actions"><button id="acceptFight" class="btn green">🥊 ZAPISZ SIĘ</button><button id="declineFight" class="btn red">ODRZUĆ</button></div></div></div>':''}
+${G.pauseEvent?'<div class="panel"><div class="head"><b>⚠️ EVENT — CZAS ZATRZYMANY</b></div><div class="body"><div class="alert">'+G.pauseEvent.text+'</div><div class="actions"><button id="reactEvent" class="btn green">ZAREAGUJ</button><button id="ignoreEvent" class="btn">ZIGNORUJ</button></div></div></div>':''}
+ <div class="panel"><div class="head"><b>DZIENNIK KARIERY</b></div><div class="log">${logs}</div></div>`;
+ $("goTrain").onclick=()=>show("training");$("goFight").onclick=()=>show("fight");
+ $("goNext").onclick=nextDay;
+ $("goFast").onclick=fastForward;
+ $("goCal").onclick=()=>show("calendar");
+ 
+ if(G.pendingFight){$("acceptFight").onclick=()=>resolveFightOffer("accept");$("declineFight").onclick=()=>resolveFightOffer("decline");}
+ if(G.pauseEvent){$("reactEvent").onclick=clearPauseEvent;$("ignoreEvent").onclick=declinePauseEvent;}
+}
+function renderTraining(){
+ const f=FINANCES.find(x=>x[0]===G.finance);
+ $("training").innerHTML=`<div class="panel"><div class="head"><b>TRAINING CENTER</b><span>${G.daily}/2 · ${dateText()}</span></div><div class="body"><div class="grid4">${SKILLS.map(k=>`<div class="card"><small>${k}</small><b>${Math.round(G.stats[k])}</b><div class="bar"><i style="width:${G.stats[k]}%"></i></div></div>`).join("")}</div><div id="trainBtns" class="actions" style="margin-top:12px"></div><div class="alert">Maksymalnie 2 jednostki dziennie. Trening kosztuje i zwiększa zmęczenie.</div></div></div>`;
+ SKILLS.slice(0,6).forEach(k=>{const b=document.createElement("button");b.className="btn";b.textContent=k+" · "+money(COST[k]*(1-f[3]));b.onclick=()=>train(k);$("trainBtns").appendChild(b)});
+}
+function renderCalendar(){
+ const base=new Date(today());base.setDate(base.getDate()-3);let days="";
+ for(let i=0;i<14;i++){const d=new Date(base);d.setDate(base.getDate()+i);const ds=d.toISOString().slice(0,10);const jobs=G.queue.filter(x=>x.date===ds);days+=`<div class="day ${ds===G.date?"today ":""}${jobs.length?"busy":""}"><b>${d.getDate()}.${d.getMonth()+1}</b>${jobs.map(x=>x.what).join("<br>")}</div>`}
+ $("calendar").innerHTML=`<div class="panel"><div class="head"><b>CAREER CALENDAR</b><span>${dateText()}</span></div><div class="body"><div class="calendar">${days}</div><div class="alert">W dni robocze system automatycznie wykonuje 2 treningi dziennie. Wpływa to na koszty, zmęczenie i obciążenie. PRZEWIŃ DO EVENTU przyspiesza karierę do momentu, w którym musisz podjąć decyzję.</div><div id="orgBtns" class="actions"></div></div></div>`;
+ ORGS.forEach(o=>{const b=document.createElement("button");b.className="btn";b.textContent=o[0];b.onclick=()=>contract(o[0]);$("orgBtns").appendChild(b)});
+}
+
+function renderScoreTable(f){
+ if(!f.scores||!f.scores.length) return '<div class="item">Brak zakończonych rund.</div>';
+ return '<table><thead><tr><th>RUNDA</th><th>'+G.name+'</th><th>'+f.op+'</th><th>OCENA</th></tr></thead><tbody>'+
+   f.scores.map(s=>'<tr><td>'+s.round+'</td><td><b>'+s.you+'</b></td><td>'+s.opp+'</td><td>'+scoreLabel(s)+'</td></tr>').join('')+
+   '</tbody></table>';
+}
+
+function renderCommentary(f){
+ if(!f.commentary||!f.commentary.length) return '<div class="item">Sędzia daje znak. Walka się rozpoczyna...</div>';
+ return f.commentary.slice(0,14).map(x=>'<div class="item">'+x+'</div>').join('');
+}
+function renderFight(){
+ if(!G.fight){
+  $("fight").innerHTML=`<div class="panel"><div class="head"><b>FIGHT NIGHT</b><span>OCZEKIWANIE</span></div><div class="body"><div class="alert">Brak walki. Wybierz organizację w Kalendarzu.</div></div></div>`;
+  return;
+ }
+ const f=G.fight;
+ const time=formatFightTime(f.time||0);
+ const round=Math.min(f.round,3);
+ const prompt=f.prompt; const started=!!f.started;
+ $("fight").innerHTML=`
+ <div class="fight">
+  <div class="fighters"><div class="fighter">${G.name}</div><div class="vs">VS</div><div class="fighter">${f.op}</div></div>
+  <div style="font-size:34px;font-weight:900;letter-spacing:2px;margin:8px 0">${time}</div>
+  <div style="color:#d7aa43;font-weight:800">RUNDA ${round}/3</div>${!started?`<div class="alert red" style="font-size:16px;margin-top:18px"><b>WALKA GOTOWA</b><br>Sędzia czeka na rozpoczęcie pojedynku.</div><button id="startFightBtn" class="btn gold big">🥊 START WALKI</button>`:""}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left;margin-top:12px">
+   <div><small>PRZEWAGA PUNKTOWA</small><div class="meter"><i style="width:${f.m}%"></i></div><small>${Math.round(f.m)} / 100</small></div>
+   <div><small>ENERGIA</small><div class="meter"><i style="width:${f.st}%"></i></div><small>${Math.round(f.st)}%</small></div>
+  </div>
+
+  <div class="panel" style="text-align:left;margin-top:14px">
+   <div class="head"><b>⚡ PRZEBIEG WALKI</b><span>${prompt?"CZAS ZATRZYMANY":"WALKA W TOKU"}</span></div>
+   <div class="body">
+    ${!started?`<div class="alert">⏸️ Czas stoi. Kliknij START WALKI.</div>`:prompt?`
+    <div class="alert red" style="font-size:15px"><b>${prompt.icon} DECYZJA!</b><br>${prompt.text}</div>
+    <div class="alert">Wybierz akcję. Po kliknięciu gra wylosuje wynik na <b>pasku skuteczności</b>. Ryzyko wpływa zarówno na szansę KO, jak i na kontrę.</div>
+    <div id="fightBtns" class="fightbuttons"></div>`:
+    `<div class="alert green">⏱️ Czas płynie automatycznie. Gra zatrzyma się, gdy pojawi się ważny moment taktyczny.</div>
+     <div class="item">Ostatnia akcja: <b>${f.lastAction||"brak"}</b></div>`}
+   </div>
+  </div>
+
+  <div class="panel" style="text-align:left">
+   <div class="head"><b>📋 PUNKTACJA — 10-POINT MUST SYSTEM</b><span>realne punktowanie rund</span></div>
+   <div class="body">
+    ${renderScoreTable(f)}
+    <div class="alert">Sędziowie stosują system <b>10-point must</b>: zwykle 10-9, przy wyraźnej przewadze 10-8, przy dominacji 10-7. 10-10 jest możliwe przy wyjątkowo wyrównanej rundzie.</div>
+   </div>
+  </div>
+  <div class="panel" style="text-align:left">
+   <div class="head"><b>🎙️ KOMENTARZ NA ŻYWO</b><span>opis przebiegu walki</span></div>
+   <div class="body" style="max-height:280px;overflow:auto">
+    ${renderCommentary(f)}
+   </div>
+  </div>
+  <div class="panel" style="text-align:left">
+   <div class="head"><b>📋 DZIENNIK AKCJI</b></div>
+   <div class="item">${f.log.slice(0,12).join("<br>")}</div>
+  </div>
+ </div>`;
+
+ if(!started && $("startFightBtn")) $("startFightBtn").onclick=startCurrentFight;
+ if(prompt && started){
+  const buttons=[
+   ["reckless","🔥 RYZYKOWNIE","KO ↑↑ · KONTRA ↑↑ · energia ↑"],
+   ["pressure","⚔️ PRESJA","tempo ↑ · KO ↑ · ryzyko średnie"],
+   ["technical","🎯 TECHNICZNIE","punkty ↑↑ · kontra ↓"],
+   ["safe","🧠 SPOKOJNIE","kontrola ↑↑ · energia oszczędzana"]
+  ];
+  buttons.forEach(x=>{
+   const b=document.createElement("button");
+   b.innerHTML="<b>"+x[1]+"</b><br><small>"+x[2]+"</small>";
+   b.onclick=()=>fightAction(x[0]);
+   $("fightBtns").appendChild(b);
+  });
+ }
+}
+
+function renderCareer(){
+ $("career").innerHTML=`<div class="panel"><div class="head"><b>CAREER LADDER</b><span>droga do UFC</span></div><div class="body"><table><thead><tr><th>ORGANIZACJA</th><th>WIEK</th><th>SKILL</th><th>GAŻA</th><th>STATUS</th><th></th></tr></thead><tbody id="careerRows"></tbody></table><div class="actions" style="margin-top:12px"><button id="careerNext" class="btn gold">▶ DALEJ — NASTĘPNY DZIEŃ</button></div></div></div>`;
+ ORGS.forEach(o=>{const ok=G.age>=o[1]&&avg()>=o[2]&&!G.fight&&!G.pendingFight&&!G.scheduledFight&&!G.fightCamp;const tr=document.createElement("tr");tr.innerHTML=`<td><b>${o[0]}</b></td><td>${o[1]}</td><td>${o[2]}</td><td>${money(o[3])}</td><td>${ok?"DOSTĘPNE":G.age<o[1]?"ZA MŁODY":"ZA MAŁO SKILLA"}</td><td></td>`;const b=document.createElement("button");b.className="btn"+(ok?" gold":"");b.textContent=ok?"KONTRAKTUJ":"ZABLOKOWANE";b.disabled=!ok;b.onclick=()=>contract(o[0]);tr.lastElementChild.appendChild(b);$("careerRows").appendChild(tr)});
+ $("careerNext").onclick=nextDay;
+}
+function renderTeam(){
+ $("team").innerHTML=`<div class="panel"><div class="head"><b>TEAM & MANAGEMENT</b></div><div class="body"><div class="grid"><div class="card"><small>Klub</small><b>${G.club}</b></div><div class="card"><small>Manager</small><b>${G.manager}</b></div><div class="card"><small>Baza</small><b>${G.base}</b></div></div><div class="alert ${sponsorOK()?"green":""}">${sponsorOK()?"Manager odblokował sponsorów i dietę.":"Sponsorzy: reputacja 60 + średnia statystyk 60."}</div></div></div>`;
+}
+function renderFinance(){
+ const ok=sponsorOK();
+ $("finance").innerHTML=`<div class="panel"><div class="head"><b>FINANCE & SPONSORS</b><span>${dateText()}</span></div><div class="body"><div class="grid4"><div class="card"><small>Gotówka</small><b>${money(G.cash)}</b></div><div class="card"><small>Reputacja</small><b>${Math.round(G.rep)}</b></div><div class="card"><small>Media</small><b>${Math.round(G.media)}</b></div><div class="card"><small>Średnia</small><b>${avg()}</b></div></div><div id="financeBtns" class="actions" style="margin-top:12px"></div><div class="alert">${ok?"Manager przynosi sponsorów i dietę. Kwoty rosną wraz z medialnością.":"Na początku dorabiasz. Przy reputacji 60 i średniej 60 zaczyna zarabiać za ciebie management."}</div></div></div>`;
+ const box=$("financeBtns");
+ if(G.rep<55&&avg()<55){let a=document.createElement("button");a.className="btn green";a.textContent="🌙 BRAMKA — WEEKEND";a.onclick=gate;box.appendChild(a);let b=document.createElement("button");b.className="btn";b.textContent="😂 WYMUSZENIE — max 2/tydzień";b.onclick=extort;box.appendChild(b)}
+ else{const s=document.createElement("span");s.textContent="Dorabianie stopniowo znika wraz z rozwojem kariery.";s.className="alert green";box.appendChild(s)}
+ if(ok){let a=document.createElement("button");a.className="btn gold";a.textContent="🤝 SPONSOR";a.onclick=sponsor;box.appendChild(a);let b=document.createElement("button");b.className="btn";b.textContent="🥗 DIETA PUDEŁKOWA";b.onclick=meal;box.appendChild(b)}
+}
+function renderEvents(){
+ $("events").innerHTML=`<div class="panel"><div class="head"><b>MEDIA & RANDOM EVENTS</b><span>reputacja → eventy</span></div><div class="body"><div class="alert">Eventy pojawiają się automatycznie i są zależne od reputacji. Nie można ich spamować. Kolejny event najwcześniej za około ${eventCooldownDays()} dni.</div><div class="log" style="margin-top:10px">${G.events.length?G.events.map(e=>`<div class="item"><b>${e[0]}</b> — ${e[1]}</div>`).join(""):"Brak eventów."}</div></div></div>`;
+
+}
+
+nav();
+const old=load();
+if(old){G=old;normalizeState();nav();show("home")}else{startScreen();}
+</script>
+</body>
+</html>
