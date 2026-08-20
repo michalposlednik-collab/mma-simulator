@@ -1,18 +1,22 @@
 <!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MMA Career Simulator V109</title><style>html,body{margin:0;width:100%;height:100%;background:#060b10;overflow:hidden}iframe{display:block;width:100%;height:100%;border:0}</style></head><body><iframe id="game"></iframe><script>(function(){'use strict';
-try{if(!sessionStorage.getItem('mmaV109CreatorReset')){localStorage.removeItem('mmaCareerV107');sessionStorage.setItem('mmaV109CreatorReset','1')}}catch(e){}
-const f=document.getElementById('game');f.src='./mma-v107.html';let mediaUses={interview:0,post:0,controversy:0},fightUses={jab:0,low:0,high:0,flying:0,spin:0,takedown:0,armbar:0,triangle:0,rnc:0},patched=false,nativeRandom=null;
-function resetFightUses(){fightUses={jab:0,low:0,high:0,flying:0,spin:0,takedown:0,armbar:0,triangle:0,rnc:0}}function resetMediaUses(){mediaUses={interview:0,post:0,controversy:0}}
+/* V109 currently uses the proven V107 fight engine. The previous V109 mistake was allowing an old V107 save to be restored. This version clears ALL simulator saves before the game starts. */
+try{Object.keys(localStorage).forEach(function(k){if(/^mmaCareerV10[2-9]$/.test(k)||/^mmaCareerV10[0-9]+$/.test(k)||k==='mmaCareerV107'||k==='mmaCareerV108'||k==='mmaCareerV109')localStorage.removeItem(k)});sessionStorage.removeItem('mmaV109CreatorReset')}catch(e){}
+const f=document.getElementById('game');f.src='./mma-v107.html?v=109fix2';
+let patched=false,nativeRandom=null;const fightUses={jab:0,low:0,high:0,flying:0,spin:0,takedown:0,armbar:0,triangle:0,rnc:0};const mediaLast={interview:-999,post:-999,controversy:-999};
 function style(d){if(d.getElementById('mmaV109Style'))return;const st=d.createElement('style');st.id='mmaV109Style';st.textContent='.wlabel{display:none!important}.wheel{background:conic-gradient(#69cf72 0 33.333%,#f3b44e 33.333% 66.666%,#d94b3d 66.666% 100%)!important}.pointer{top:-3px!important}.wheelbox p{font-size:0}.wheelbox p:after{content:"Zielony = PEŁNY SUKCES · Pomarańczowy = CZĘŚCIOWY SUKCES · Czerwony = NIEUDANA TECHNIKA";font-size:14px}.actionLimit{display:block;font-size:10px;color:#91a3ac;margin-top:3px}';d.head.appendChild(st)}
-function patch(){try{const d=f.contentWindow.document,w=f.contentWindow;if(!d||!d.body)return;style(d);if(patched)return;patched=true;resetFightUses();resetMediaUses();
-const oldStart=w.startFight;if(typeof oldStart==='function')w.startFight=function(){resetFightUses();resetMediaUses();return oldStart.apply(this,arguments)};
-const spin=d.getElementById('spinBtn');if(spin&&spin.onclick){const oldSpin=spin.onclick;spin.onclick=function(){nativeRandom=nativeRandom||Math.random;const r=nativeRandom();const outcome=r<.45?'FULL':r<.78?'PARTIAL':'FAIL';const center=outcome==='FULL'?60:outcome==='PARTIAL'?180:300;const second=(360-center)/360;let n=0;Math.random=function(){n++;return n===1?r:second};try{return oldSpin.apply(this,arguments)}finally{Math.random=nativeRandom}}}
-/* Max 3 basic strikes and max 2 of every special technique per fight. */
+function day(d){const m=(d.body.innerText||'').match(/Dzień\s+(\d+)/);return m?+m[1]:0}
+function patch(){try{const d=f.contentWindow.document,w=f.contentWindow;if(!d||!d.body)return;style(d);if(patched)return;patched=true;
+/* Fight action limits. These are checked in capture phase, before V107's onclick. */
 d.addEventListener('click',function(ev){const b=ev.target.closest('[data-basic],[data-special]');if(!b)return;let key,max;if(b.hasAttribute('data-basic')){key=b.getAttribute('data-basic')==='Low kick'?'low':'jab';max=3}else{key={'High kick':'high','Latające kolano':'flying','Spinning backfist':'spin','Obalenie':'takedown','Balacha':'armbar','Trójkąt':'triangle','RNC':'rnc'}[b.getAttribute('data-special')];max=2}if(!key)return;if(fightUses[key]>=max){ev.preventDefault();ev.stopImmediatePropagation();return}fightUses[key]++},true);
-/* Media: 1 interview, 2 posts, 1 va-banque between fights. */
-d.addEventListener('click',function(ev){const b=ev.target.closest('[data-media]');if(!b)return;const vals=(b.getAttribute('data-media')||'').split(','),type=vals[0]==='3'?'interview':vals[0]==='2'?'post':'controversy',max=type==='post'?2:1;if(mediaUses[type]>=max){ev.preventDefault();ev.stopImmediatePropagation();return}mediaUses[type]++;
-/* V107 randomly picked Babilon/FEN while rendering the dashboard. Preserve the organisation already shown during media actions. */
-let org='';const orgStat=[...d.querySelectorAll('.stat')].find(x=>/ORGANIZACJA/i.test(x.textContent));if(orgStat)org=orgStat.textContent;const oldR=Math.random;if(/Babilon/i.test(org))Math.random=()=>0.1;else if(/FEN/i.test(org))Math.random=()=>0.9;setTimeout(()=>{Math.random=oldR},0);
+/* Wheel: use the iframe's Math.random, not the parent window's Math.random. This fixes the exact green/orange/red mismatch. */
+const spin=d.getElementById('spinBtn');if(spin&&spin.onclick){const oldSpin=spin.onclick;spin.onclick=function(){const original=w.Math.random;const r=original();const outcome=r<.45?'FULL':'PARTIAL';const out=r<.45?'PEŁNY SUKCES':r<.78?'CZĘŚCIOWY SUKCES':'NIEUDANA TECHNIKA';const center=outcome==='FULL'?60:out==='CZĘŚCIOWY SUKCES'?180:300;let n=0;w.Math.random=function(){n++;if(n===1)return r;return (360-center)/360};try{return oldSpin.apply(this,arguments)}finally{w.Math.random=original}}}
+/* Media cadence: interview every 14 days, post every 7 days, controversy every 60 days. */
+d.addEventListener('click',function(ev){const b=ev.target.closest('[data-media]');if(!b)return;const vals=(b.getAttribute('data-media')||'').split(',');const type=vals[0]==='3'?'interview':vals[0]==='2'?'post':'controversy';const maxDays=type==='interview'?14:type==='post'?7:60;const now=day(d);if(now-mediaLast[type]<maxDays){ev.preventDefault();ev.stopImmediatePropagation();return}mediaLast[type]=now;
+/* Keep the organisation displayed before the media rerender. V107's league() randomly chooses Babilon/FEN, so freeze its random during the native media handler. */
+const stat=[...d.querySelectorAll('.stat')].find(x=>/ORGANIZACJA/i.test(x.textContent));const org=stat?stat.textContent:'';const old=w.Math.random;if(/Babilon/i.test(org))w.Math.random=()=>.1;else if(/FEN/i.test(org))w.Math.random=()=>.9;setTimeout(()=>{w.Math.random=old},50);
 },true);
+/* Reset fight limits only when a fresh fight begins. */
+const oldStart=w.startFight;if(typeof oldStart==='function')w.startFight=function(){Object.keys(fightUses).forEach(k=>fightUses[k]=0);return oldStart.apply(this,arguments)};
 }catch(e){}}
-f.addEventListener('load',()=>{setTimeout(patch,20);setTimeout(patch,250);setTimeout(patch,1000)});setInterval(patch,1000);
+f.addEventListener('load',()=>{setTimeout(patch,20);setTimeout(patch,300);setTimeout(patch,1000)});setInterval(patch,1000);
 })();</script></body></html>
