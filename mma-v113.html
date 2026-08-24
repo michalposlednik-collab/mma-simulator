@@ -1,0 +1,18 @@
+<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MMA Career Simulator V113</title><style>html,body{margin:0;width:100%;height:100%;background:#060b10;overflow:hidden}iframe{display:block;width:100%;height:100%;border:0}#game{position:relative}</style></head><body><iframe id="game" src="./mma-v111.html?v=113"></iframe><script>(function(){'use strict';const f=document.getElementById('game');let ready=false;function patch(){try{const w=f.contentWindow,d=f.contentDocument;if(!w||!d||!d.body)return;
+// Keep V111 creator/dashboard/game intact. Only patch navigation and time-flow.
+if(!w.__v113){
+ w.__v113=true;
+ w.openModal=function(title,head,body,opts){d.getElementById('mt').textContent=title;d.getElementById('mh').textContent=head;d.getElementById('mb').innerHTML=body;const box=d.getElementById('mc');box.innerHTML='';opts.forEach(o=>{const b=d.createElement('button');b.className='option';b.innerHTML=o[0];b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();try{o[1]()}catch(err){console.error(err)}});box.appendChild(b)});d.getElementById('modal').style.display='flex'};
+ const oldAdvance=w.advanceDay;
+ w.advanceDay=function(){if(w.s.fight&&w.s.day>=w.s.fight.date)return;oldAdvance();};
+ w.continueCareer=function(){if(!w.s.created){w.creator();return}if(w.s.fight&&w.s.day>=w.s.fight.date){w.startFight();return}let guard=0;while(guard++<365){if(w.s.fight&&w.s.day>=w.s.fight.date){w.startFight();return}const before=w.s.day;w.advanceDay();if(w.s.day<=before)break;const modal=d.getElementById('modal');if(modal&&getComputedStyle(modal).display!=='none')return;if(w.s.fight&&w.s.day>=w.s.fight.date){w.dashboard();return}}w.dashboard()};
+ w.resetCareer=function(){try{localStorage.removeItem('mmaCareerV111')}catch(e){}w.s={created:false,day:1,age:18,money:10000,rep:5,ig:100,w:0,l:0,d:0,first:'',last:'',type:'',weight:'Middleweight',club:'Lokalny klub',sk:{Boks:50,Zapasy:50,BJJ:50,Kondycja:50,Siła:50,Szybkość:50},fight:null,history:[],log:[],media:{interviewUntil:0,postUntil:0,controversyUntil:0},manager:null,sponsors:[],screen:'dashboard'};w.creator()};
+}
+// Creator screen: if there is no active career, always show the original creator.
+if(!w.s.created){w.creator();return}
+// Remove old left-side next-day control. Continue belongs top-right on dashboard.
+if(w.s.screen==='dashboard'){
+ const old=[...d.querySelectorAll('.side button')].find(b=>b.textContent.includes('NASTĘPNY DZIEŃ')||b.textContent.includes('KONTYNUUJ'));if(old)old.remove();
+ const top=d.querySelector('.main .top');if(top&&!top.querySelector('#continueCareerBtn')){const b=d.createElement('button');b.id='continueCareerBtn';b.className='primary';b.textContent='▶ KONTYNUUJ';b.style.cssText='font-size:16px;padding:14px 22px;white-space:nowrap';b.onclick=()=>w.continueCareer();top.appendChild(b)}
+}
+}catch(e){console.error('V113',e)}}f.addEventListener('load',()=>setTimeout(patch,100));setInterval(patch,400);})();</script></body></html>
