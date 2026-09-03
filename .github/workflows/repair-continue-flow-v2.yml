@@ -42,7 +42,7 @@ function continueToEvent(){
   if(s.day%21===0&&typeof socialEvent==='function'){socialEvent();return}
   if(typeof specialEvent==='function'&&Math.random()<.35){specialEvent();return}
   if(typeof genericEvent==='function'){genericEvent();return}
-  openEvent('KARIERA','📨 ZDARZENIE','<p>Dzień <b>'+s.day+'</b>. Kariera została przesunięta do następnego wydarzenia.</p>',[['OK',closeEvent]])
+  openEvent('KARIERA','📨 ZDARZENIE','<p>Dzień <b>'+s.day+'. Kariera została przesunięta do następnego wydarzenia.</b></p>',[['OK',closeEvent]])
  }catch(e){console.error('CONTINUE ERROR',e);save();openEvent('BŁĄD KONTYNUACJI','⚠️ PROBLEM Z EVENTEM','<p>Wystąpił błąd podczas przejścia do następnego eventu.</p><pre>'+String(e)+'</pre>',[['WRÓĆ',closeEvent]])}
 }
 '''
