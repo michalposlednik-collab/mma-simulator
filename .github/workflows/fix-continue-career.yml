@@ -3,13 +3,13 @@ name: Fix continue career
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   patch:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,14 +19,35 @@ jobs:
           from pathlib import Path
           p=Path('mma-v127.html')
           s=p.read_text(encoding='utf-8')
-          old="function nextEvent(){if(s.fight&&s.day<s.fight.date)return s.day+1;let dates=[];for(let i=s.day+1;i<=s.day+365;i++){if(i%35===0&&!s.fight)dates.push(i);if(i%21===0)dates.push(i);if(i===s.day+14&&s.rep>=8)dates.push(i)}return Math.min(...dates.filter(x=>x>s.day),s.day+7)}"
-          new="function nextEvent(){if(s.fight&&s.day<s.fight.date)return s.day+1;let dates=[];for(let i=s.day+1;i<=s.day+365;i++){if(i%35===0&&!s.fight)dates.push(i);if(i%21===0)dates.push(i);if(i===s.day+14&&s.rep>=8)dates.push(i)}let future=dates.filter(x=>x>s.day);return future.length?Math.min(...future):s.day+7}"
-          if old not in s: raise SystemExit('nextEvent marker not found')
-          s=s.replace(old,new,1)
+          start=s.find('function nextEvent(){')
+          end=s.find('function skipToFight',start)
+          if start<0 or end<0:
+              raise SystemExit('continue markers not found')
+          block='''function nextEvent(){if(s.fight&&s.day<s.fight.date)return s.day+1;let dates=[];for(let i=s.day+1;i<=s.day+365;i++){if(i%35===0&&!s.fight)dates.push(i);if(i%21===0)dates.push(i);if(i===s.day+14&&s.rep>=8)dates.push(i)}let future=dates.filter(x=>x>s.day);return future.length?Math.min(...future):s.day+7}
+function continueToEvent(){
+ if(!s.created){creator();return}
+ if(s.careerFreezeUntil&&s.day<s.careerFreezeUntil){let left=s.careerFreezeUntil-s.day;openEvent('KONSEKWENCJE','⏳ KARIERA ZAMROŻONA',`<p>Kariera jest zamrożona jeszcze przez <b>${left} dni</b>.</p>`,[['OK',closeEvent]]);return}
+ if(s.injuryUntil&&s.day<s.injuryUntil){let left=s.injuryUntil-s.day;openEvent('REHABILITACJA','🩹 KONTUZJA',`<p>Potrzebujesz jeszcze <b>${left} dni</b> rehabilitacji.</p>`,[['🩹 REHABILITACJA — PRZEWIŃ '+left+' DNI',rehabilitate]]);return}
+ if(s.fight&&s.day<s.fight.date){campDaily();return}
+ if(s.fight&&s.day>=s.fight.date){startFight();return}
+ let target=nextEvent();
+ if(!Number.isFinite(target)||target<=s.day)target=s.day+1;
+ s.day=target;
+ save();
+ if(!s.fight&&s.day%35===0){dashboard();offerFight();return}
+ if(s.day%21===0&&typeof socialEvent==='function'){dashboard();socialEvent();return}
+ if(typeof specialEvent==='function'&&Math.random()<.35){dashboard();specialEvent();return}
+ dashboard();
+ if(typeof genericEvent==='function')genericEvent();
+}
+'''
+          s=s[:start]+block+s[end:]
+          s=s.replace('onclick="continueToEvent()"','onclick="window.continueToEvent()"')
           p.write_text(s,encoding='utf-8')
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add mma-v127.html
-          git diff --cached --quiet || git commit -m 'Fix continue career event flow'
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Fix continue to next career event'
           git push
