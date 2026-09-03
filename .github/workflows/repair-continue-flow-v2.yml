@@ -14,7 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Wait for other repair workflows
-        run: sleep 45
+        run: sleep 90
+      - name: Sync with latest main
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
       - name: Guarantee next event opens after continuing
         run: |
           python3 <<'PY'
@@ -31,4 +35,4 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add mma-v127.html
           git diff --cached --quiet || git commit -m 'Guarantee event modal after continue'
-          git push
+          git push origin HEAD:main
