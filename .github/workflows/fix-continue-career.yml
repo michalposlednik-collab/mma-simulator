@@ -1,0 +1,32 @@
+name: Fix continue career
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix continue flow only
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p=Path('mma-v127.html')
+          s=p.read_text(encoding='utf-8')
+          old="function nextEvent(){if(s.fight&&s.day<s.fight.date)return s.day+1;let dates=[];for(let i=s.day+1;i<=s.day+365;i++){if(i%35===0&&!s.fight)dates.push(i);if(i%21===0)dates.push(i);if(i===s.day+14&&s.rep>=8)dates.push(i)}return Math.min(...dates.filter(x=>x>s.day),s.day+7)}"
+          new="function nextEvent(){if(s.fight&&s.day<s.fight.date)return s.day+1;let dates=[];for(let i=s.day+1;i<=s.day+365;i++){if(i%35===0&&!s.fight)dates.push(i);if(i%21===0)dates.push(i);if(i===s.day+14&&s.rep>=8)dates.push(i)}let future=dates.filter(x=>x>s.day);return future.length?Math.min(...future):s.day+7}"
+          if old not in s: raise SystemExit('nextEvent marker not found')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mma-v127.html
+          git diff --cached --quiet || git commit -m 'Fix continue career event flow'
+          git push
