@@ -13,23 +13,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Replace continue handler
+      - name: Wait for other repair workflows
+        run: sleep 45
+      - name: Replace continue handler without advance dependency
         run: |
           python3 <<'PY'
           from pathlib import Path
           p=Path('mma-v127.html')
           s=p.read_text(encoding='utf-8')
-
           start=s.find('function nextEvent(){')
           end=s.find('function skipToFight',start)
           if start<0 or end<0:
               raise SystemExit('continue block not found')
-
           block='''function nextEvent(){if(s.fight&&s.day<s.fight.date)return s.day+1;let dates=[];for(let i=s.day+1;i<=s.day+365;i++){if(i%35===0&&!s.fight)dates.push(i);if(i%21===0)dates.push(i);if(i===s.day+14&&s.rep>=8)dates.push(i)}let future=dates.filter(x=>x>s.day);return future.length?Math.min(...future):s.day+7}
 function continueToEvent(){
  try{
   if(!s.created){creator();return}
-  if(s.careerFreezeUntil&&s.day<s.careerFreezeUntil){let left=s.careerFreezeUntil-s.day;openEvent('KONSEKWENCJE','⏳ KARIERA ZAMROŻONA',`<p>Kariera jest zamrożona jeszcze przez <b>${left} dni</b>.</p>`,[['OK',closeEvent]]);return}
+  if(s.careerFreezeUntil&&s.day<s.careerFreezeUntil){let left=s.careerFreezeUntil-s.day;s.day=s.careerFreezeUntil;save();dashboard();openEvent('KONSEKWENCJE','⏳ KARIERA ZAMROŻONA',`<p>Przewinięto <b>${left} dni</b>. Kariera została odmrożona.</p>`,[['OK',closeEvent]]);return}
   if(s.injuryUntil&&s.day<s.injuryUntil){let left=s.injuryUntil-s.day;openEvent('REHABILITACJA','🩹 KONTUZJA',`<p>Potrzebujesz jeszcze <b>${left} dni</b> rehabilitacji.</p>`,[['🩹 REHABILITACJA — PRZEWIŃ '+left+' DNI',rehabilitate]]);return}
   if(s.fight&&s.day<s.fight.date){campDaily();return}
   if(s.fight&&s.day>=s.fight.date){startFight();return}
@@ -42,7 +42,7 @@ function continueToEvent(){
   if(s.day%21===0&&typeof socialEvent==='function'){socialEvent();return}
   if(typeof specialEvent==='function'&&Math.random()<.35){specialEvent();return}
   if(typeof genericEvent==='function'){genericEvent();return}
-  openEvent('KARIERA','📨 ZDARZENIE','<p>Dzień <b>'+s.day+'. Kariera została przesunięta do następnego wydarzenia.</b></p>',[['OK',closeEvent]])
+  openEvent('KARIERA','📨 ZDARZENIE','<p>Dzień <b>'+s.day+'</b>. Kariera została przesunięta do następnego wydarzenia.</p>',[['OK',closeEvent]])
  }catch(e){console.error('CONTINUE ERROR',e);save();openEvent('BŁĄD KONTYNUACJI','⚠️ PROBLEM Z EVENTEM','<p>Wystąpił błąd podczas przejścia do następnego eventu.</p><pre>'+String(e)+'</pre>',[['WRÓĆ',closeEvent]])}
 }
 '''
@@ -53,5 +53,5 @@ function continueToEvent(){
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add mma-v127.html
-          git diff --cached --quiet || git commit -m 'Fix continue to next career event robustly'
+          git diff --cached --quiet || git commit -m 'Fix continue progression without advance dependency'
           git push
