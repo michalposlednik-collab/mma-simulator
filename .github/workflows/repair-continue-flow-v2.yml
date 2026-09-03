@@ -1,0 +1,44 @@
+name: Repair continue flow v2
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repair only continue flow
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p=Path('mma-v127.html')
+          s=p.read_text(encoding='utf-8')
+
+          def replace_between(text, start, end, replacement):
+              a=text.find(start)
+              if a<0:
+                  raise SystemExit(f'marker not found: {start}')
+              b=text.find(end,a+len(start))
+              if b<0:
+                  raise SystemExit(f'end marker not found: {end}')
+              return text[:a]+replacement+text[b:]
+
+          next_fn="""function nextEvent(){if(s.fight&&s.day<s.fight.date)return s.day+1;let dates=[];for(let i=s.day+1;i<=s.day+365;i++){if(i%35===0&&!s.fight)dates.push(i);if(i%21===0)dates.push(i);if(i===s.day+14&&s.rep>=8)dates.push(i)}let future=dates.filter(x=>x>s.day);return future.length?Math.min(...future):s.day+7}"""
+
+          continue_fn="""function continueToEvent(){try{if(!s.created){creator();return}if(s.careerFreezeUntil&&s.day<s.careerFreezeUntil){let left=s.careerFreezeUntil-s.day;advance(Math.min(30,left));save();openEvent('KONSEKWENCJE','⏳ KARIERA ZAMROŻONA',`<p>Kariera jest zamrożona jeszcze przez <b>${s.careerFreezeUntil-s.day} dni</b>.</p>`,[['OK',closeEvent]]);return}if(s.injuryUntil&&s.day<s.injuryUntil){let left=s.injuryUntil-s.day;openEvent('REHABILITACJA','🩹 KONTUZJA',`<p>Potrzebujesz jeszcze <b>${left} dni</b> rehabilitacji.</p>`,[['🩹 REHABILITACJA — PRZEWIŃ '+left+' DNI',rehabilitate]]);return}if(s.fight&&s.day<s.fight.date){campDaily();return}if(s.fight&&s.day>=s.fight.date){startFight();return}let target=nextEvent();if(!Number.isFinite(target)||target<=s.day)target=s.day+1;advance(target-s.day);save();if(s.fight&&s.day<s.fight.date){campDaily();return}if(s.fight&&s.day>=s.fight.date){startFight();return}if(!s.fight&&s.day%35===0){offerFight();return}if(s.day%21===0){socialEvent();return}if(Math.random()<.35){specialEvent();return}genericEvent()}catch(e){console.error(e);save();dashboard()}}"""
+
+          s=replace_between(s,'function nextEvent(){','function continueToEvent(){',next_fn)
+          s=replace_between(s,'function continueToEvent(){','function skipToFight',continue_fn)
+          p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mma-v127.html
+          git diff --cached --quiet || git commit -m 'Repair continue to next career event'
+          git push
