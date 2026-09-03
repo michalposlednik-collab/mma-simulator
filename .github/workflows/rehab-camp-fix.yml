@@ -1,0 +1,43 @@
+name: Fix rehab and camp flow
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch dashboard logic only
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('mma-v127.html')
+          s=p.read_text(encoding='utf-8')
+          def replace_func(src,name,new):
+              pat=r'function '+re.escape(name)+r'\([^)]*\)\{.*?\}(?=function )'
+              out,n=re.subn(pat,new,src,count=1,flags=re.S)
+              if n!=1: raise SystemExit(name+' marker not found')
+              return out
+          rehab="""function rehabilitate(){if(!s.injuryUntil||s.day>=s.injuryUntil){s.injuryUntil=0;save();closeEvent();dashboard();return}let days=s.injuryUntil-s.day;advance(days);s.injuryUntil=0;s.log.push('🩹 Zakończono rehabilitację. Powrót do treningów.');save();closeEvent();dashboard()}"""
+          if 'function rehabilitate()' not in s:
+              idx=s.find('function campDaily()')
+              if idx<0: raise SystemExit('campDaily insertion point not found')
+              s=s[:idx]+rehab+s[idx:]
+          s=replace_func(s,'continueToEvent',"""function continueToEvent(){if(s.careerFreezeUntil&&s.day<s.careerFreezeUntil){let left=s.careerFreezeUntil-s.day;advance(Math.min(30,left));openEvent('KONSEKWENCJE','⏳ KARIERA ZAMROŻONA',`<p>Kariera jest zamrożona jeszcze przez <b>${s.careerFreezeUntil-s.day} dni</b>.</p>`,[['OK',closeEvent]]);return}if(s.injuryUntil&&s.day<s.injuryUntil){let left=s.injuryUntil-s.day;openEvent('REHABILITACJA','🩹 KONTUZJA',`<p>Potrzebujesz jeszcze <b>${left} dni</b> rehabilitacji.</p><p>Możesz od razu przewinąć kalendarz do końca rehabilitacji.</p>`,[['🩹 REHABILITACJA — PRZEWIŃ '+left+' DNI',rehabilitate]]);return}if(s.fight&&s.day<s.fight.date){campDaily();return}if(s.fight&&s.day>=s.fight.date){startFight();return}let target=nextEvent();advance(target-s.day);if(!s.fight&&s.day%35===0){offerFight();return}if(s.day%21===0){socialEvent();return}if(Math.random()<.35){specialEvent();return}genericEvent()}""")
+          s=replace_func(s,'campDaily',"""function campDaily(){if(!s.fight||s.day>=s.fight.date)return;let left=s.fight.date-s.day;openEvent('PRZYGOTOWANIA DO WALKI','🏕️ CAMP W TOKU',`<p>Przygotowania trwają. Do dnia walki pozostało <b>${left} dni</b>.</p><p>Plan campu jest zapisany w kalendarzu. Nie musisz potwierdzać każdego dnia osobno.</p>`,[['⏩ PRZEWIŃ DO DNIA WALKI',skipToFight],['ZOSTAŃ W TYM DNIU',closeEvent]])}""")
+          s=replace_func(s,'skipToFight',"""function skipToFight(){if(!s.fight||s.day>=s.fight.date){closeEvent();return}let days=s.fight.date-s.day;advance(days);s.log.push('⏩ Pominięto dni campu. Gotowy do walki z '+s.fight.opponent+'.');save();closeEvent();dashboard()}""")
+          s=replace_func(s,'acceptCamp',"""function acceptCamp(opp,org,purse,c){let cost=Number(c[1])||0;let plan=Array.isArray(c[2])?c[2]:[];let days=plan.length||1;if(s.money<cost){alert('Za mało pieniędzy na ten camp. Potrzebujesz '+money(cost)+', a masz '+money(s.money)+'.');return}s.money-=cost;s.campPlan=plan.map((x,i)=>({day:s.day+i+1,activity:x}));s.fight={opponent:opp,league:org,purse,date:s.day+days,camp:c[0],campDays:days,round:1,time:300,stamina:100,vitality:100,oppStamina:100,oppVitality:100,score:[],uses:{jab:0,low:0,high:0,flying:0,spin:0,takedown:0,armbar:0,triangle:0,rnc:0}};s.log.push('🥊 Zaakceptowano walkę z '+opp+'. Camp: '+c[0]+'. Koszt: '+money(cost)+'.');save();document.getElementById('modal').style.display='none';calendar()}""")
+          p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mma-v127.html
+          git diff --cached --quiet || git commit -m 'Fix one-click rehabilitation and camp confirmation'
+          git push
