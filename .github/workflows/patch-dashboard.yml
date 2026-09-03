@@ -1,0 +1,44 @@
+name: Patch dashboard camp flow
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch camp flow
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p=Path('mma-v127.html')
+          s=p.read_text(encoding='utf-8')
+
+          old="""function campDaily(){let p=s.campPlan.find(x=>x.day===s.day);if(!p)return;openEvent('CAMP · DZIEŃ '+s.day,'🏕️ '+p.activity,`<p>Dziś w planie przygotowań: <b>${p.activity}</b>.</p><p>Juras: „Nie robimy przypadkowych jednostek. Każdy dzień ma przygotować Cię do konkretnej walki.”</p>`,[['KONTYNUUJ CAMP',closeEvent]])}"""
+          new="""function campDaily(){if(!s.fight||s.day>=s.fight.date)return;let left=s.fight.date-s.day;openEvent('PRZYGOTOWANIA DO WALKI','🏕️ CAMP W TOKU',`<p>Przygotowania trwają. Do dnia walki pozostało <b>${left} dni</b>.</p><p>Plan campu jest zapisany w kalendarzu. Nie musisz przechodzić każdego dnia osobno.</p>`,[['⏩ PRZEWIŃ DO DNIA WALKI',skipToFight],['ZOSTAŃ W TYM DNIU',closeEvent]])}"""
+          if old not in s: raise SystemExit('campDaily marker not found')
+          s=s.replace(old,new,1)
+
+          old2="""function continueToEvent(){if(s.careerFreezeUntil&&s.day<s.careerFreezeUntil){let left=s.careerFreezeUntil-s.day;advance(Math.min(30,left));openEvent('KONSEKWENCJE','⏳ KARIERA ZAMROŻONA',`<p>Kariera jest zamrożona jeszcze przez <b>${s.careerFreezeUntil-s.day} dni</b>.</p>`,[['OK',closeEvent]]);return}if(s.injuryUntil&&s.day<s.injuryUntil){advance(1);openEvent('REHABILITACJA','🩹 DZIEŃ REGENERACJI',`<p>Kontuzja po ryzykownym treningu. Pozostało <b>${s.injuryUntil-s.day} dni</b>.</p>`,[['ODPOCZYWAM',closeEvent]]);return}if(s.fight&&s.day<s.fight.date){advance(1);campDaily();return}if(s.fight&&s.day>=s.fight.date){startFight();return}let target=nextEvent();advance(target-s.day);if(!s.fight&&s.day%35===0){offerFight();return}if(s.day%21===0){socialEvent();return}if(Math.random()<.35){specialEvent();return}genericEvent()}"""
+          new2="""function continueToEvent(){if(s.careerFreezeUntil&&s.day<s.careerFreezeUntil){let left=s.careerFreezeUntil-s.day;advance(Math.min(30,left));openEvent('KONSEKWENCJE','⏳ KARIERA ZAMROŻONA',`<p>Kariera jest zamrożona jeszcze przez <b>${s.careerFreezeUntil-s.day} dni</b>.</p>`,[['OK',closeEvent]]);return}if(s.injuryUntil&&s.day<s.injuryUntil){advance(1);openEvent('REHABILITACJA','🩹 DZIEŃ REGENERACJI',`<p>Kontuzja po ryzykownym treningu. Pozostało <b>${s.injuryUntil-s.day} dni</b>.</p>`,[['ODPOCZYWAM',closeEvent]]);return}if(s.fight&&s.day<s.fight.date){campDaily();return}if(s.fight&&s.day>=s.fight.date){startFight();return}let target=nextEvent();advance(target-s.day);if(!s.fight&&s.day%35===0){offerFight();return}if(s.day%21===0){socialEvent();return}if(Math.random()<.35){specialEvent();return}genericEvent()}function skipToFight(){if(!s.fight||s.day>=s.fight.date){closeEvent();return}let days=s.fight.date-s.day;advance(days);s.log.push('⏩ Pominięto dni campu. Gotowy do walki z '+s.fight.opponent+'.');save();closeEvent();dashboard()}"""
+          if old2 not in s: raise SystemExit('continueToEvent marker not found')
+          s=s.replace(old2,new2,1)
+
+          old3="""function acceptCamp(opp,org,purse,c){if(s.money<c[1]){alert('Za mało pieniędzy na ten camp. Wybierz tańszy camp.');return}let plan=c[2].map((x,i)=>({day:s.day+i+1,activity:x}));s.money-=c[1];s.campPlan=plan;s.fight={opponent:opp,league:org,purse,date:s.day+c[1]+1,camp:c[0],campDays:c[1],round:1,time:300,stamina:100,vitality:100,oppStamina:100,oppVitality:100,score:[],uses:{jab:0,low:0,high:0,flying:0,spin:0,takedown:0,armbar:0,triangle:0,rnc:0}};s.log.push('🥊 Zaakceptowano walkę z '+opp+'. Camp: '+c[0]+'.');save();closeEvent();calendar()}"""
+          new3="""function acceptCamp(opp,org,purse,c){if(s.money<c[1]){alert('Za mało pieniędzy na ten camp. Potrzebujesz '+money(c[1])+', a masz '+money(s.money)+'.');return}let plan=c[2].map((x,i)=>({day:s.day+i+1,activity:x}));s.money-=c[1];s.campPlan=plan;s.fight={opponent:opp,league:org,purse,date:s.day+c[1]+1,camp:c[0],campDays:c[1],round:1,time:300,stamina:100,vitality:100,oppStamina:100,oppVitality:100,score:[],uses:{jab:0,low:0,high:0,flying:0,spin:0,takedown:0,armbar:0,triangle:0,rnc:0}};s.log.push('🥊 Zaakceptowano walkę z '+opp+'. Camp: '+c[0]+'. Koszt: '+money(c[1])+'.');save();modal.style.display='none';calendar()}"""
+          if old3 not in s: raise SystemExit('acceptCamp marker not found')
+          s=s.replace(old3,new3,1)
+
+          p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mma-v127.html
+          git diff --cached --quiet || git commit -m 'Stage 2: fight camp fast-forward and payment flow'
+          git push
