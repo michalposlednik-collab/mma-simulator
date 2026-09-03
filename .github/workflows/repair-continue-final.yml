@@ -2,8 +2,6 @@ name: Final repair continue event
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
 
 permissions:
   contents: write
@@ -21,27 +19,9 @@ jobs:
           s=p.read_text(encoding='utf-8')
           start=s.find('function nextEvent(){')
           end=s.find('function skipToFight',start)
-          if start<0 or end<0:
-              raise SystemExit('target block not found')
+          if start<0 or end<0: raise SystemExit('target block not found')
           block='''function nextEvent(){if(s.fight&&s.day<s.fight.date)return s.day+1;let dates=[];for(let i=s.day+1;i<=s.day+365;i++){if(i%35===0&&!s.fight)dates.push(i);if(i%21===0)dates.push(i);if(i===s.day+14&&s.rep>=8)dates.push(i)}let future=dates.filter(x=>x>s.day);return future.length?Math.min(...future):s.day+7}
-function continueToEvent(){
- try{
-  if(!s.created){creator();return}
-  if(s.careerFreezeUntil&&s.day<s.careerFreezeUntil){let left=s.careerFreezeUntil-s.day;s.day=s.careerFreezeUntil;save();dashboard();openEvent('KONSEKWENCJE','⏳ KARIERA ZAMROŻONA',`<p>Przewinięto <b>${left} dni</b>. Kariera została odmrożona.</p>`,[['OK',closeEvent]]);return}
-  if(s.injuryUntil&&s.day<s.injuryUntil){let left=s.injuryUntil-s.day;openEvent('REHABILITACJA','🩹 KONTUZJA',`<p>Potrzebujesz jeszcze <b>${left} dni</b> rehabilitacji.</p>`,[['🩹 REHABILITACJA — PRZEWIŃ '+left+' DNI',rehabilitate]]);return}
-  if(s.fight&&s.day<s.fight.date){campDaily();return}
-  if(s.fight&&s.day>=s.fight.date){startFight();return}
-  let target=nextEvent();
-  if(!Number.isFinite(target)||target<=s.day)target=s.day+1;
-  s.day=target;
-  save();
-  if(!s.fight&&s.day%35===0){offerFight();return}
-  if(s.day%21===0&&typeof socialEvent==='function'){socialEvent();return}
-  if(typeof specialEvent==='function'&&Math.random()<.35){specialEvent();return}
-  if(typeof genericEvent==='function'){genericEvent();return}
-  openEvent('KARIERA','📨 ZDARZENIE','<p>Dzień <b>'+s.day+'</b>. Wydarzenie nie ma własnego handlera.</p>',[['OK',closeEvent]])
- }catch(e){console.error('CONTINUE ERROR',e);save();openEvent('BŁĄD KONTYNUACJI','⚠️ PROBLEM Z EVENTEM','<p>Wystąpił błąd podczas przejścia do następnego eventu.</p><pre>'+String(e)+'</pre>',[['WRÓĆ',closeEvent]])}
-}
+function continueToEvent(){try{if(!s.created){creator();return}if(s.careerFreezeUntil&&s.day<s.careerFreezeUntil){s.day=s.careerFreezeUntil;save();openEvent('KONSEKWENCJE','⏳ KARIERA ZAMROŻONA','<p>Kariera została odmrożona.</p>',[['OK',closeEvent]]);return}if(s.injuryUntil&&s.day<s.injuryUntil){let left=s.injuryUntil-s.day;openEvent('REHABILITACJA','🩹 KONTUZJA','<p>Potrzebujesz jeszcze <b>'+left+' dni</b> rehabilitacji.</p>',[['🩹 REHABILITACJA — PRZEWIŃ '+left+' DNI',rehabilitate]]);return}if(s.fight&&s.day<s.fight.date){campDaily();return}if(s.fight&&s.day>=s.fight.date){startFight();return}let target=nextEvent();if(!Number.isFinite(target)||target<=s.day)target=s.day+1;s.day=target;save();if(!s.fight&&s.day%35===0){offerFight();return}if(s.day%21===0&&typeof socialEvent==='function'){socialEvent();return}if(typeof specialEvent==='function'&&Math.random()<.35){specialEvent();return}if(typeof genericEvent==='function'){genericEvent();return}openEvent('KARIERA','📨 ZDARZENIE','<p>Dzień <b>'+s.day+'</b>. Wydarzenie nie ma własnego handlera.</p>',[['OK',closeEvent]])}catch(e){console.error(e);openEvent('BŁĄD KONTYNUACJI','⚠️ PROBLEM','<pre>'+String(e)+'</pre>',[['WRÓĆ',closeEvent]])}}
 '''
           s=s[:start]+block+s[end:]
           s=s.replace('onclick="continueToEvent()"','onclick="window.continueToEvent()"')
