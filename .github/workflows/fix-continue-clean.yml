@@ -3,7 +3,6 @@ name: Fix continue flow clean
 on:
   push:
     branches: [main]
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,44 +13,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Replace only continue handler
+      - name: Patch only career continuation
         run: |
           python3 <<'PY'
           from pathlib import Path
           import re
           p=Path('mma-v127.html')
           s=p.read_text(encoding='utf-8')
-          new = r'''function continueToEvent(){
-            if(!s.created){creator();return}
-            if(s.careerFreezeUntil&&s.day<s.careerFreezeUntil){
-              let left=s.careerFreezeUntil-s.day;
-              openEvent('KONSEKWENCJE','⏳ KARIERA ZAMROŻONA',`<p>Kariera jest zamrożona jeszcze przez <b>${left} dni</b>.</p>`,[['OK',closeEvent]]);
-              return
-            }
-            if(s.injuryUntil&&s.day<s.injuryUntil){
-              let left=s.injuryUntil-s.day;
-              openEvent('REHABILITACJA','🩹 KONTUZJA',`<p>Potrzebujesz jeszcze <b>${left} dni</b> rehabilitacji.</p><p>Nie musisz przechodzić przez każdy dzień osobno.</p>`,[['🩹 REHABILITACJA — PRZEWIŃ '+left+' DNI',rehabilitate]]);
-              return
-            }
-            if(s.fight&&s.day<s.fight.date){campDaily();return}
-            if(s.fight&&s.day>=s.fight.date){startFight();return}
-            let target=nextEvent();
-            if(!Number.isFinite(target)||target<=s.day)target=s.day+1;
-            advance(target-s.day);
-            if(!s.fight&&s.day%35===0){offerFight();return}
-            if(s.day%21===0){socialEvent();return}
-            if(Math.random()<.35){specialEvent();return}
-            genericEvent();
-          }
-          '''
+          new='''function continueToEvent(){if(!s.created){creator();return}if(s.careerFreezeUntil&&s.day<s.careerFreezeUntil){let left=s.careerFreezeUntil-s.day;openEvent('KONSEKWENCJE','⏳ KARIERA ZAMROŻONA',`<p>Kariera jest zamrożona jeszcze przez <b>${left} dni</b>.</p>`,[['OK',closeEvent]]);return}if(s.injuryUntil&&s.day<s.injuryUntil){let left=s.injuryUntil-s.day;openEvent('REHABILITACJA','🩹 KONTUZJA',`<p>Potrzebujesz jeszcze <b>${left} dni</b> rehabilitacji.</p><p>Nie musisz przechodzić przez każdy dzień osobno.</p>`,[['🩹 REHABILITACJA — PRZEWIŃ '+left+' DNI',rehabilitate]]);return}if(s.fight&&s.day<s.fight.date){campDaily();return}if(s.fight&&s.day>=s.fight.date){startFight();return}let target=nextEvent();if(!Number.isFinite(target)||target<=s.day)target=s.day+1;advance(target-s.day);if(!s.fight&&s.day%35===0){offerFight();return}if(s.day%21===0){socialEvent();return}if(Math.random()<.35){specialEvent();return}genericEvent()}function advance'''
           pattern=r'function continueToEvent\(\)\{.*?\}function advance'
-          ns,n=re.subn(pattern,new+'function advance',s,count=1,flags=re.S)
-          if n!=1:
-              raise SystemExit('continueToEvent block not found exactly once')
+          ns,n=re.subn(pattern,new,s,count=1,flags=re.S)
+          if n!=1: raise SystemExit('continueToEvent block not found exactly once')
           p.write_text(ns,encoding='utf-8')
           PY
+          rm -f .github/workflows/fix-continue-clean.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add mma-v127.html
-          git diff --cached --quiet || git commit -m 'Fix career continuation flow cleanly'
+          git add mma-v127.html .github/workflows/fix-continue-clean.yml
+          git commit -m 'Fix career continuation flow cleanly'
           git push
